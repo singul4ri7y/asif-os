@@ -6,8 +6,6 @@
 #include <kernio.h>
 #include <kernmem.h>
 
-extern void enable();
-
 void kernel_main() {
     // Intialize the Teletype Output screen.
 
@@ -28,6 +26,10 @@ void kernel_main() {
     // So our new hardware ISR should start from 0x20.
 
     initialize_pic(0x20, 0x28);
+
+    // Now enable all the interrupts.
+
+    enable_interrupts();
 
     void* ptr1 = mallock(5000);
     void* ptr2 = mallock(50);

@@ -1,6 +1,7 @@
 #ifndef __NUTTLE_IDT_H__
 #define __NUTTLE_IDT_H__
 
+#include <nuttle/interrupts.h>
 #include <kernint.h>
 
 typedef enum __enum_NuttleGateType {

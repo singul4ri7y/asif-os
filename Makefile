@@ -44,10 +44,6 @@ kernel: $(KERNEL_OUT_ASM) $(KERNEL_OUT_C)
 	echo "Extracting raw binary from full kernel object..."
 	i386-elf-gcc -T $(SRC_DIR)/linker.ld $(KERN_FLAGS) $(BUILD_DIR)/kernelfull.obj -o $(BUILD_DIR)/kernel.bin
 
-# $(BUILD_DIR)/main.asm.obj: $(SRC_DIR)/kernel/main.asm
-# 	echo "Compiling ASM translation $<, generating object '$@'"
-# 	$(ASM) -f elf32 -g $< -o $@
-
 $(BUILD_DIR)/%.asm.obj: $(SRC_DIR)/kernel/%.asm
 	mkdir -p $(dir $@)
 	echo "Compiling ASM translation '$(patsubst $(SRC_DIR)/kernel/%.asm,%.asm, $<)', generating object '$@'..."

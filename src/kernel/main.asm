@@ -9,15 +9,13 @@
 ; the rest of the assembly file at the end.
 
 section .bootstrap
-    global kernel_init
-
-%define PIC1_COMMAND_PORT     0x20        ; Master PIC command port.
-%define PIC2_COMMAND_PORT     0x20        ; Slave PIC command port.
 
 ; Writing a kernel in Assembly language is kinda pain. So, I will the kernel
 ; C entry point function and start writing the whole kernel from there.
 
 extern kernel_main
+
+global kernel_init
 
 kernel_init: 
     ; Call the C entry point function.
