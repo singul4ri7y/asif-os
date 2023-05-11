@@ -16,6 +16,14 @@ void* mallock(size_t size) {
     return kheap_malloc(size);
 }
 
+void* zmallock(size_t size) {
+    void* ptr = mallock(size);
+
+    if(ptr) memsetk(ptr, 0, size);
+
+    return ptr;
+}
+
 void freek(void* ptr) {
     kheap_free(ptr);
 }

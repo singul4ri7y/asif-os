@@ -3,8 +3,11 @@
 #include <nuttle/io.h>
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
+#include <nuttle/paging.h>
 #include <kernio.h>
 #include <kernmem.h>
+
+static PagingChunk* kernel_paging_4gb_chunk = 0;
 
 void kernel_main() {
     // Intialize the Teletype Output screen.
@@ -19,6 +22,18 @@ void kernel_main() {
 
     idt_init();
 
+    // Creating 4GB paging chunk.
+
+    kernel_paging_4gb_chunk = paging_get_new_4gb_chunk(PAGING_IS_WRITTABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+
+    // Set up the paging directory.
+
+    paging_switch(paging_get_directory(kernel_paging_4gb_chunk));
+
+    // Now enable paging.
+
+    enable_paging();
+
     // Initialize the Intel 8259A PIC.
 
     // Intel recommends to reserve the first 32 (0x1f counting from 0) interrupt in IDT for 
@@ -30,15 +45,6 @@ void kernel_main() {
     // Now enable all the interrupts.
 
     enable_interrupts();
-
-    void* ptr1 = mallock(5000);
-    void* ptr2 = mallock(50);
-
-    freek(ptr1);
-
-    ptr1 = mallock(42);
-
-    if(ptr2) {}
 
     putsk("Hello world!\n");
 }

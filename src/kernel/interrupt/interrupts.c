@@ -25,7 +25,7 @@ void interrupt_init() {
     // Trap gates are useful to handle software interrupts and interrupt gates are 
     // useful for handling hardware interrupts, as it disables all types of interrupts while
     // processing an interrupt, making hardware interrupts more precedented over software 
-    // interrupts.
+    // interrupts. Kind of.
 
     for(int i = 0; i < NUTTLE_CONFIG_TOTAL_INTERRUPTS; i++) 
         idt_add_entry(i, NUTTLE_TRAP_GATE, noint);

@@ -5,6 +5,7 @@
 
 void* memsetk(void* ptr, int value, size_t size);
 void* mallock(size_t size);
+void* zmallock(size_t size);
 void freek(void* ptr);
 
 #endif    // __NUTTLE_KERNMEM_H__
