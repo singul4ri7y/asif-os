@@ -1,5 +1,5 @@
 #ifndef __NUTTLE_KERNEL_H__
-#define __NUTTLE_KENREL_H__
+#define __NUTTLE_KERNEL_H__
 
 void kernel_main();
 

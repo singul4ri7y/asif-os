@@ -1,4 +1,5 @@
 #include <nuttle/paging.h>
+#include <nuttle/status.h>
 #include <kernmem.h>
 
 static uint32_t* current_directory = 0x00;
@@ -46,4 +47,54 @@ void paging_switch(uint32_t* directory) {
     paging_load_directory(directory);
 
     current_directory = directory;
+}
+
+uint8_t validate_alignment(void* addr) {
+    return ((uint32_t) addr % PAGING_SIZE) == 0u;
+}
+
+static int paging_get_indices(void* virtual_address, uint32_t* directory_index, uint32_t* table_index, uint32_t* offset) {
+    if(!validate_alignment(virtual_address)) 
+        return -EINVARG;
+    
+    // The virtual address is going to point to some byte memory in our virtual memory, defined by
+    // a directory entry and a table entry. Now each directory entry covers a single table size, which
+    // is (PAGING_TOTAL_DIRECOTRY_ENTRIES * PAGING_SIZE). So to get the directory, we just need to divide
+    // the virtual address with (PAGING_TOTAL_DIRECTORY-ENTRIES * PAGING_SIZE) and to get the table index,
+    // as each table entry points to 4096 (or PAGING_SIZE) pages, we have to find the modulus of the previous
+    // directory division and divide it with PAGING_SIZE.
+
+    // As all the values and macros I use regarding paging are power of 2. So, we can use bitwise logic to do all
+    // the stuff efficiently. The first 10 bits (2 ^ 10 = 1023) of the address is directory index, and next 10 bits
+    // are the table index and rest 12 bits are offset.
+
+    *directory_index = ((uint32_t) virtual_address >> 22) & 0x3ff;
+    *table_index     = ((uint32_t) virtual_address >> 12) & 0x3ff;
+
+    if(offset) *offset = (uint32_t) virtual_address & 0xfff;
+
+    return NUTTLE_ALL_OK;
+}
+
+int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
+    if(!validate_alignment(virt_addr) || !validate_alignment(phy_addr)) 
+        return -EINVARG;
+    
+    uint32_t directory_index, table_index;
+
+    int res = paging_get_indices(virt_addr, &directory_index, &table_index, nullptr);
+
+    if(res < 0) return res;
+
+    // Get the directory entry using directory index.
+
+    uint32_t entry = directory[directory_index];
+
+    // Get the table the entry is pointing to.
+
+    uint32_t* table = (uint32_t*) (entry & ~0xfff);        // ~0xfff = 0xfffff000, which indicates the first high 20 bits.
+
+    table[table_index] = (uint32_t) phy_addr | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITTABLE | PAGING_IS_PRESENT;
+
+    return NUTTLE_ALL_OK;
 }

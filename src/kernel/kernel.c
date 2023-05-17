@@ -4,6 +4,7 @@
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
 #include <nuttle/paging.h>
+#include <nuttle/disk.h>
 #include <kernio.h>
 #include <kernmem.h>
 
@@ -46,5 +47,9 @@ void kernel_main() {
 
     enable_interrupts();
 
-    putsk("Hello world!\n");
+    char buffer[512];
+
+    disk_read_sectors(0, 1, buffer);
+
+    putsk("AsifOS rocks!\n");
 }
