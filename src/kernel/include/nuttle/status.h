@@ -5,5 +5,6 @@
 #define EIO               1
 #define EINVARG           2
 #define ENOMEM            3
+#define EBADPATH          4
 
 #endif    // __NUTTLE_STATUS_H__

@@ -1,5 +1,6 @@
 #include <nuttle/kheap.h>
 #include <kernmem.h>
+#include <kernint.h>
 
 void* memsetk(void* ptr, int value, size_t size) {
     char* const bytes = (char* const) ptr;
@@ -26,4 +27,18 @@ void* zmallock(size_t size) {
 
 void freek(void* ptr) {
     kheap_free(ptr);
+}
+
+int memcmpk(void* ptr1, void* ptr2, size_t count) {
+    int8_t* mem1 = (int8_t*) ptr1, *mem2 = (int8_t*) ptr2;
+
+    int diff = 0;
+
+    while(count--) {
+        diff = *mem1++ - *mem2++;
+
+        if(diff != 0) return diff;
+    }
+
+    return 0;
 }

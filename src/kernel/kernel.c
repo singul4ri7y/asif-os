@@ -4,7 +4,8 @@
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
 #include <nuttle/paging.h>
-#include <nuttle/disk.h>
+#include <nuttle/fs/pparser.h>
+#include <nuttle/disk/stream.h>
 #include <kernio.h>
 #include <kernmem.h>
 
@@ -22,6 +23,10 @@ void kernel_main() {
     // Initialize the Interrupt Descriptor Table.
 
     idt_init();
+
+    // Initialize the disks.
+
+    disk_all_init();
 
     // Creating 4GB paging chunk.
 
@@ -47,9 +52,13 @@ void kernel_main() {
 
     enable_interrupts();
 
-    char buffer[512];
+    NuttleDiskStream* stream = diskstream_new(0);
 
-    disk_read_sectors(0, 1, buffer);
+    diskstream_seek(stream, 256);
+
+    char buffer[4360];
+
+    diskstream_read(stream, buffer, 4354);
 
     putsk("AsifOS rocks!\n");
 }
