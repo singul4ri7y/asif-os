@@ -17,7 +17,30 @@ DATA_SEG: equ gdt_data - gdt_start
 jmp short start
 nop
 
-times 33 db 0
+; FAT 16 Header.
+
+oem_identifier                  db 'MSWIN4.1'    ; 8 bit OEM identifier field. Pretty much useless, for maximum compatibility.
+bytes_per_sector                dw 0x200         ; Number of bytes per sector. Pretty much useless as well.
+sectors_per_clusters            db 0x08          ; Important, this field is arbitrary. 4KB just seemed enough for now, minimizing space wastes.
+reserved_sectors                dw 0xc8          ; Our kernel will be stored in the reserved sector. 200 sectors are enough to store the kernel.
+number_of_fat_tables            db 0x2           ; FAT table backup or FAT table copies for preventing data corruption. I am gonna go with 2.
+root_directory_entries          dw 0x200         ; I am gonna go for 512 root directory entries.
+total_sectors                   dw 0x00          ; The total number of sectors in logical volume.
+media_type                      db 0xf8          ; I am going for the media type partion/real hard drive, which is indicated by 0xf8.
+sectors_per_fat                 dw 0x100         ; We can have 2 ^ 16 FAT table entries for FAT16, which needs 131072 bytes, thus 256 sectors.
+sectors_per_track               dw 0x20          ; A random value for backward compatibility.
+number_of_heads                 dw 0x10          ; For compatibility.
+hidden_sectors                  dd 0x00          ; It's just he beginning of the of the partition in LBA.
+large_sectors                   dd 0x80000       ; Large sectors count.
+
+; ; Extended Boot Record (BPB for DOS 4.1).
+
+drive_number                    db 0x80          ; Drive number.
+windows_nt_flags                db 0x00          ; Reserved.
+signature                       db 0x29          ; Volume signature for god knows why.
+volume_id                       dd 0xcafebabe    ; Volume ID.
+volume_label                    db 'ASIFOS     ' ; Volume/Disk name.
+system_identifier_string        db 'FAT16   '    ; Identifier string for filesystem type.
 
 ; Global Descriptor Table.
 ; 

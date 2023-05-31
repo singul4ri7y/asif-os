@@ -26,9 +26,30 @@ all: create bootloader kernel
 	dd if=$(BUILD_DIR)/boot.bin > $(OUTPUT_DIR)/os.img status=none
 	dd if=$(BUILD_DIR)/kernel.bin >> $(OUTPUT_DIR)/os.img status=none
 
-	# Fill it with empty sectors.
+	# Fill it with empty sectors. Here I will store my kernel. Loading the kernel from the FAT formatted
+	# disk is hard work.
 
-	dd if=/dev/zero bs=512 count=100 >> $(OUTPUT_DIR)/os.img status=none
+	dd if=/dev/zero bs=512 count=200 >> $(OUTPUT_DIR)/os.img status=none
+	truncate -s 100K $(OUTPUT_DIR)/os.img
+
+	# Now this portion is the FAT16 tabel entries. Add 4 magic bytes to define FAT16 table start.
+	# I'm using 2 FAT tables. So the method has to be done twice.
+
+	# First FAT table.
+
+	echo -n -e '\xf8\xff\xff\xff' >> $(OUTPUT_DIR)/os.img
+	dd if=/dev/zero count=508 bs=1 >> $(OUTPUT_DIR)/os.img status=none
+	dd if=/dev/zero count=255 bs=512 >> $(OUTPUT_DIR)/os.img status=none
+
+	# Second FAT table.
+
+	echo -n -e '\xf8\xff\xff\xff' >> $(OUTPUT_DIR)/os.img
+	dd if=/dev/zero count=508 bs=1 >> $(OUTPUT_DIR)/os.img status=none
+	dd if=/dev/zero count=255 bs=512 >> $(OUTPUT_DIR)/os.img status=none
+
+	dd if=/dev/zero bs=1M count=256 >> $(OUTPUT_DIR)/os.img status=none
+	truncate -s 256M $(OUTPUT_DIR)/os.img
+
 	echo "Successfully created $(OUTPUT_DIR)/os.img"
 
 bootloader: 
