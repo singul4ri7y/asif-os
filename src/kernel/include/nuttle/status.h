@@ -6,5 +6,6 @@
 #define EINVARG           2
 #define ENOMEM            3
 #define EBADPATH          4
+#define EINVIDX           5
 
 #endif    // __NUTTLE_STATUS_H__

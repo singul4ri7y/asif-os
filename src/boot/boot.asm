@@ -31,9 +31,9 @@ sectors_per_fat                 dw 0x100         ; We can have 2 ^ 16 FAT table 
 sectors_per_track               dw 0x20          ; A random value for backward compatibility.
 number_of_heads                 dw 0x10          ; For compatibility.
 hidden_sectors                  dd 0x00          ; It's just he beginning of the of the partition in LBA.
-large_sectors                   dd 0x80000       ; Large sectors count.
+large_sectors                   dd 0x80000       ; Large sectors count. The size of the image file, in bytes.
 
-; ; Extended Boot Record (BPB for DOS 4.1).
+; Extended Boot Record (BPB for DOS 4.1).
 
 drive_number                    db 0x80          ; Drive number.
 windows_nt_flags                db 0x00          ; Reserved.

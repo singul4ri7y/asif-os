@@ -76,8 +76,9 @@ static int disk_read_sectors(long long lba, uint16_t sector_count, void* buffer)
 void disk_all_init() {
     memsetk(&p_disk, 0, sizeof(p_disk));
 
-    p_disk.type = NUTTLE_DISK_TYPE_REAL;
+    p_disk.type        = NUTTLE_DISK_TYPE_REAL;
     p_disk.sector_size = NUTTLE_DEFAULT_DISK_SECTOR_SIZE;
+    p_disk.fs          = fs_fetch_disk_fs(&p_disk);
 }
 
 // Get's a specific disk from index.
@@ -96,4 +97,10 @@ int disk_read_block(NuttleDisk* disk, long long lba, uint16_t sector_count, void
         return -EINVARG;
 
     return disk_read_sectors(lba, sector_count, buffer);
+}
+
+// Get's the associated filesystem.
+
+NuttleFs* disk_get_fs(NuttleDisk* disk) {
+    return disk -> fs;
 }

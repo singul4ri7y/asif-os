@@ -27,4 +27,12 @@
 
 #define NUTTLE_MAX_PATH_SIZE            128
 
+// Maximum number of filesystem allowed.
+
+#define NUTTLE_MAX_FILESYSTEMS          16
+
+// Maximum number of file descriptors.
+
+#define NUTTLE_MAX_FILE_DESCRIPTORS     512
+
 #endif    // __NUTTLE_CONFIG_H__
