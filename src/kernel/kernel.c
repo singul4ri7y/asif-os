@@ -20,6 +20,10 @@ void kernel_main() {
 
     kheap_init();
 
+    // Initialze the filesystems.
+
+    fs_init();
+
     // Initialize the Interrupt Descriptor Table.
 
     idt_init();

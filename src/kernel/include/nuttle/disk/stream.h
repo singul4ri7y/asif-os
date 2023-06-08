@@ -11,5 +11,6 @@ typedef struct __struct_NuttleDiskStream {
 NuttleDiskStream* diskstream_new(int disk_id);
 int diskstream_seek(NuttleDiskStream* stream, uint32_t pos);
 int diskstream_read(NuttleDiskStream* stream, void* buf, uint32_t total);
+void diskstream_close(NuttleDiskStream* stream);
 
 #endif    // __NUTTLE_STREAM_H__

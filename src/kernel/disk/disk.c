@@ -3,6 +3,7 @@
 #include <nuttle/disk/disk.h>
 #include <nuttle/config.h>
 #include <kernmem.h>
+#include <kernio.h>
 
 // We are going to use a single primary disk for now.
 
@@ -78,7 +79,19 @@ void disk_all_init() {
 
     p_disk.type        = NUTTLE_DISK_TYPE_REAL;
     p_disk.sector_size = NUTTLE_DEFAULT_DISK_SECTOR_SIZE;
-    p_disk.fs          = fs_fetch_disk_fs(&p_disk);
+    p_disk.fs          = nullptr;
+    p_disk.fs_private  = nullptr;
+    p_disk.id          = 0;
+
+    // Fetch the suitable filesystem.
+
+    if(fs_fetch_disk_fs(&p_disk) != NUTTLE_ALL_OK) {
+        // TODO: Implement kernel panic.
+
+        putsk("Could not resolve a suitable filesystem for disk!");
+
+        while(1) {}
+    }
 }
 
 // Get's a specific disk from index.

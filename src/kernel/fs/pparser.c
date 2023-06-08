@@ -22,8 +22,13 @@ static int pparser_is_valid_path(const char* filepath) {
 }
 
 static int pparser_extract_drive_number(const char** filepath, uint8_t* drive_number) {
-    if(!pparser_is_valid_path(*filepath)) 
-        return -EBADPATH;
+    int res = NUTTLE_ALL_OK;
+
+    if(!pparser_is_valid_path(*filepath)) {
+        res = -EBADPATH;
+
+        goto out;
+    }
     
     // Now extract the drive number.
 
@@ -35,18 +40,28 @@ static int pparser_extract_drive_number(const char** filepath, uint8_t* drive_nu
 
     *filepath += 3;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 static int pparser_extract_path_part(const char** filepath, char** container) {
-    if(!**filepath) 
-        return -EBADPATH;
+    int res = NUTTLE_ALL_OK;
+
+    if(!**filepath) {
+        res = -EBADPATH;
+
+        goto out;
+    }
     
     // It's gonna create a 4096 byte block anyway.
 
     char* part = mallock(NUTTLE_MAX_PATH_SIZE * sizeof(char));
 
-    if(!part) return -ENOMEM;
+    if(!part) {
+        res = -ENOMEM;
+
+        goto out;
+    }
 
     int count = 0;
 
@@ -65,39 +80,52 @@ static int pparser_extract_path_part(const char** filepath, char** container) {
     
     *container = part;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 static int pparser_get_path(uint8_t drive_number, PathPart* part, NuttlePath** path) {
+    int res = NUTTLE_ALL_OK;
+
     *path = (NuttlePath*) mallock(sizeof(NuttlePath));
 
-    if(!*path) return -ENOMEM;
+    if(!*path) {
+        res = -ENOMEM;
+
+        goto out;
+    }
 
     (*path) -> drive_no = drive_number;
     (*path) -> parts    = part;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 static int pparser_make_path_part(PathPart* prev, const char** filepath, PathPart** path_part) {
+    int res = NUTTLE_ALL_OK;
+
     *path_part = mallock(sizeof(PathPart));
 
-    if(!*path_part) 
-        return -ENOMEM;
+    if(!*path_part) {
+        res = -ENOMEM;
+
+        goto out;
+    }
 
     char* path = 0x00;
 
-    int res = pparser_extract_path_part(filepath, &path);
+    res = pparser_extract_path_part(filepath, &path);
     
-    if(res < 0) 
-        return res;
+    if(res < 0) goto out;
 
     (*path_part) -> part = path;
     (*path_part) -> next = 0x00;
 
     if(prev) prev -> next = *path_part;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 int pparser_parse_path(const char* filepath, NuttlePath** nuttle_path) {

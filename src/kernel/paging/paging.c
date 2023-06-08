@@ -54,8 +54,13 @@ uint8_t validate_alignment(void* addr) {
 }
 
 static int paging_get_indices(void* virtual_address, uint32_t* directory_index, uint32_t* table_index, uint32_t* offset) {
-    if(!validate_alignment(virtual_address)) 
-        return -EINVARG;
+    int res = NUTTLE_ALL_OK;
+
+    if(!validate_alignment(virtual_address)) {
+        res = -EINVARG;
+
+        goto out;
+    }
     
     // The virtual address is going to point to some byte memory in our virtual memory, defined by
     // a directory entry and a table entry. Now each directory entry covers a single table size, which
@@ -73,18 +78,24 @@ static int paging_get_indices(void* virtual_address, uint32_t* directory_index, 
 
     if(offset) *offset = (uint32_t) virtual_address & 0xfff;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
-    if(!validate_alignment(virt_addr) || !validate_alignment(phy_addr)) 
-        return -EINVARG;
+    int res = NUTTLE_ALL_OK;
+
+    if(!validate_alignment(virt_addr) || !validate_alignment(phy_addr)) {
+        res = -EINVARG;
+
+        goto out;
+    }
     
     uint32_t directory_index, table_index;
 
-    int res = paging_get_indices(virt_addr, &directory_index, &table_index, nullptr);
+    res = paging_get_indices(virt_addr, &directory_index, &table_index, nullptr);
 
-    if(res < 0) return res;
+    if(res < 0) goto out;
 
     // Get the directory entry using directory index.
 
@@ -96,5 +107,6 @@ int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
 
     table[table_index] = (uint32_t) phy_addr | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITTABLE | PAGING_IS_PRESENT;
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }

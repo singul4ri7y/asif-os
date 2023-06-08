@@ -34,8 +34,11 @@ int diskstream_read(NuttleDiskStream* stream, void* buf, uint32_t total) {
 
     uint8_t* ptr = (uint8_t*) buf;
 
+    int res = NUTTLE_ALL_OK;
+
     while(sectors_total--) {
-        disk_read_block(stream -> disk, sector++, 1, buffer);
+        if((res = disk_read_block(stream -> disk, sector++, 1, buffer)) != NUTTLE_ALL_OK) 
+            goto out;
 
         for(; offset < 512 && total; offset++, total--) 
             *ptr++ = buffer[offset];
@@ -43,5 +46,10 @@ int diskstream_read(NuttleDiskStream* stream, void* buf, uint32_t total) {
         offset = 0;
     }
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
+}
+
+void diskstream_close(NuttleDiskStream* stream) {
+    freek(stream);
 }

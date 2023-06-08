@@ -11,7 +11,9 @@ typedef enum __enum_NuttleDiskType {
 struct __struct_NuttleDisk {
     NuttleDiskType type;
     uint16_t sector_size;
+    uint8_t id;
     NuttleFs* fs;
+    void* fs_private;        // Private filesystem data.
 };
 
 void disk_all_init();

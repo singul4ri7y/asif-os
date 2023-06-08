@@ -30,10 +30,10 @@ void fs_init();
 
 // To implement a new filesystem.
 
-void fs_insert_filsystem(NuttleFs* fs);
+void fs_insert_filesystem(NuttleFs* fs);
 
 // Find the suitable filesystem for a disk.
 
-NuttleFs* fs_fetch_disk_fs(NuttleDisk* disk);
+int fs_fetch_disk_fs(NuttleDisk* disk);
 
 #endif    // __NUTTLE_FS_H__

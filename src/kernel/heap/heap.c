@@ -11,17 +11,23 @@ static int validate_ptr_alignment(void* ptr) {
 }
 
 int heap_create(Heap* heap, void* start, void* end, HeapTable* table) {
+    int res = NUTTLE_ALL_OK;
+
     // Argument validation.
 
-    if(validate_ptr_alignment(start) < 0 || validate_ptr_alignment(end) < 0 || validate_heap_table(start, end, table) < 0) 
-        return -EINVARG;
+    if(validate_ptr_alignment(start) < 0 || validate_ptr_alignment(end) < 0 || validate_heap_table(start, end, table) < 0) {
+        res = -EINVARG;
+
+        goto out;
+    }
 
     heap -> table      = table;
     heap -> start_addr = start;
 
     memsetk(table -> entries, HEAP_TABLE_ENTRY_FREE, sizeof(HeapTableEntry) * table -> size);
 
-    return NUTTLE_ALL_OK;
+out: 
+    return res;
 }
 
 static uint32_t get_total_block(uint32_t size) {
