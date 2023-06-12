@@ -42,3 +42,12 @@ int memcmpk(void* ptr1, void* ptr2, size_t count) {
 
     return 0;
 }
+
+void* memcpyk(void* ptr1, void* ptr2, size_t size) {
+    uint8_t* src = ptr2, *dest = ptr1;
+
+    while(size--) 
+        *dest++ = *src++;
+    
+    return ptr1;
+}

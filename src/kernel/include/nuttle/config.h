@@ -35,4 +35,8 @@
 
 #define NUTTLE_MAX_FILE_DESCRIPTORS     512
 
+// Size of a single FAT16 table entry.
+
+#define NUTTLE_FAT16_TABLE_ENTRY_SIZE   2
+
 #endif    // __NUTTLE_CONFIG_H__

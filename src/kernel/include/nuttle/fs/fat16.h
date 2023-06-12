@@ -69,23 +69,23 @@ typedef struct __struct_NuttleFATItem {
     NuttleFATItemType type;
     NuttleFATDirectory* directory;
     int total;        // Total number of items in the directory.
-    int start_cluster_number;
-    int end_cluster_number;
+    int start_sector_pos;
+    int end_sector_pos;
 } NuttleFATItem;
 
 // Will be used to represent an opened file.
 
-typedef struct __struct_NuttleFATItemDescriptor {
+typedef struct __struct_NuttleFATFileDescriptor {
     NuttleFATItem* item;
     uint32_t pos;               // The position the file is seeked to.
-} NuttleFATItemDescriptor;
+} NuttleFATFileDescriptor;
 
 typedef struct __struct_NuttleFATPrivate {
     NuttleFAT16Header header;
     NuttleFATItem root_directory;
 
-    NuttleDiskStream* fat_cluster_stream;          // To read cluster entries.
-    NuttleDiskStream* fat_read_stream;             // To read a file raw data.
+    NuttleDiskStream* fat_table_stream;          // To read cluster entries.
+    NuttleDiskStream* fat_data_stream;           // To read a file raw data.
 } NuttleFATPrivate;
 
 void fat16_init();

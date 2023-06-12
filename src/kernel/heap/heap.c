@@ -1,4 +1,5 @@
 #include <nuttle/heap.h>
+#include <nuttle/error.h>
 #include <nuttle/config.h>
 #include <kernmem.h>
 
@@ -121,7 +122,7 @@ static void* heap_malloc_blocks(Heap* heap, uint32_t blocks) {
 }
 
 void* heap_malloc(Heap* heap, size_t size) {
-    if(size == 0u) 
+    if(ISERRP(size)) 
         return 0x0;
     
     return heap_malloc_blocks(heap, get_total_block(size));

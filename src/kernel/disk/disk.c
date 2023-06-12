@@ -85,7 +85,7 @@ void disk_all_init() {
 
     // Fetch the suitable filesystem.
 
-    if(fs_fetch_disk_fs(&p_disk) != NUTTLE_ALL_OK) {
+    if(ISERR(fs_fetch_disk_fs(&p_disk))) {
         // TODO: Implement kernel panic.
 
         putsk("Could not resolve a suitable filesystem for disk!");
@@ -106,10 +106,18 @@ NuttleDisk* disk_get(int idx) {
 // Reads blocks from disk specified. For now the block size is hardcoded 512 bytes.
 
 int disk_read_block(NuttleDisk* disk, long long lba, uint16_t sector_count, void* buffer) {
-    if(disk != &p_disk) 
-        return -EINVARG;
+    int res = NUTTLE_ALL_OK;
 
-    return disk_read_sectors(lba, sector_count, buffer);
+    if(disk != &p_disk) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    res = disk_read_sectors(lba, sector_count, buffer);
+
+out: 
+    return res;
 }
 
 // Get's the associated filesystem.

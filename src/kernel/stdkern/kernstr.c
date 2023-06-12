@@ -13,3 +13,25 @@ size_t strnlenk(const char* str, size_t maxsiz) {
 
     return size > maxsiz ? maxsiz : size;
 }
+
+int strcmpk(const char* s1, const char* s2) {
+    while(*s1 != 0 && *s2 != 0) {
+        int diff = *s1++ - *s2++;
+
+        if(diff) return diff;
+    }
+
+    if(*s1 != 0 || *s2 != 0) 
+        return *s1 - *s2;
+    
+    return 0;
+}
+
+void strlowerk(char* str) {
+    while(*str) {
+        if(*str >= 'A' && *str <= 'Z') 
+            *str ^= ' ';
+        
+        str++;
+    }
+}

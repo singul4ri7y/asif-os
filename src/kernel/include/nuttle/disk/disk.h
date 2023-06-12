@@ -1,8 +1,9 @@
 #ifndef __NUTTLE_DISK_H__
 #define __NUTTLE_DISK_H__
 
-#include <kernint.h>
 #include <nuttle/fs/fs.h>
+#include <nuttle/error.h>
+#include <kernint.h>
 
 typedef enum __enum_NuttleDiskType {
     NUTTLE_DISK_TYPE_REAL

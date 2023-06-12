@@ -1,6 +1,7 @@
 #include <nuttle/fs/pparser.h>
 #include <nuttle/config.h>
 #include <nuttle/status.h>
+#include <nuttle/error.h>
 #include <kernstr.h>
 #include <kernmem.h>
 
@@ -129,29 +130,37 @@ out:
 }
 
 int pparser_parse_path(const char* filepath, NuttlePath** nuttle_path) {
+    int res = NUTTLE_ALL_OK;
+
     const char* tmp_path = filepath;
 
     uint8_t drive_number;
 
-    int res = pparser_extract_drive_number(&tmp_path, &drive_number);
-
-    if(res < 0) return res;
+    if(ISERR(res = pparser_extract_drive_number(&tmp_path, &drive_number))) 
+        goto out;
 
     PathPart* parts = 0x00;
 
-    res = pparser_make_path_part(NULL, &tmp_path, &parts);
+    // If in the filename there is only the drive number, there will be
+    // no path part. E.g. '0:/'.
 
-    if(res < 0) return res;
+    if(*tmp_path != 0) {
+        if(ISERR(res = pparser_make_path_part(NULL, &tmp_path, &parts))) 
+            goto out;
 
-    PathPart* next = parts, *tmp_part;
+        PathPart* next = parts, *tmp_part;
 
-    while(res == NUTTLE_ALL_OK) {
-        res = pparser_make_path_part(next, &tmp_path, &tmp_part);
+        while(res == NUTTLE_ALL_OK) {
+            res = pparser_make_path_part(next, &tmp_path, &tmp_part);
 
-        next = tmp_part;
-    } 
+            next = tmp_part;
+        }
+    }
 
-    return pparser_get_path(drive_number, parts, nuttle_path);
+    res = pparser_get_path(drive_number, parts, nuttle_path);
+
+out: 
+    return res;
 }
 
 void pparser_free(NuttlePath* path) {

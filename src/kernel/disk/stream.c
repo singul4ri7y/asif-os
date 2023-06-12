@@ -37,7 +37,7 @@ int diskstream_read(NuttleDiskStream* stream, void* buf, uint32_t total) {
     int res = NUTTLE_ALL_OK;
 
     while(sectors_total--) {
-        if((res = disk_read_block(stream -> disk, sector++, 1, buffer)) != NUTTLE_ALL_OK) 
+        if(ISERR(res = disk_read_block(stream -> disk, sector++, 1, buffer))) 
             goto out;
 
         for(; offset < 512 && total; offset++, total--) 
@@ -45,6 +45,10 @@ int diskstream_read(NuttleDiskStream* stream, void* buf, uint32_t total) {
         
         offset = 0;
     }
+
+    // Adjust the position.
+
+    stream -> pos += total;
 
 out: 
     return res;

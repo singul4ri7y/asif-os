@@ -2,26 +2,29 @@
 #define __NUTTLE_FS_H__
 
 #include <nuttle/fs/pparser.h>
+#include <kerndef.h>
 
 // Forward declaration of disk.
 
 typedef struct __struct_NuttleDisk NuttleDisk;
 
-typedef enum __enum_FileMode {
-    FILE_MODE_READ,
-    FILE_MODE_WRITE,
-    FILE_MODE_APPEND,
-    FILE_MODE_INVALID
-} FileMode;
+typedef uint8_t FileMode;
 
-typedef int (*FsResolveFn)(NuttleDisk* disk);
+#define FILE_MODE_READ    1
+#define FILE_MODE_WRITE   2
+#define FILE_MODE_APPEND  4
+#define FILE_MODE_INVALID 8
+
+typedef int   (*FsResolveFn)(NuttleDisk* disk);
+typedef int   (*FsReadFn)(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb, void* out);
 typedef void* (*FsOpenFn)(NuttleDisk* disk, PathPart* part, FileMode mode);
 
 // Represents a filesystem.
 
 typedef struct __struct_NuttleFs {
     FsResolveFn resolve;
-    FsOpenFn open;
+    FsReadFn    read;
+    FsOpenFn    open;
 
     char fs_name[16];
 } NuttleFs;

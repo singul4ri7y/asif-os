@@ -4,7 +4,7 @@
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
 #include <nuttle/paging.h>
-#include <nuttle/fs/pparser.h>
+#include <nuttle/fs/file.h>
 #include <nuttle/disk/stream.h>
 #include <kernio.h>
 #include <kernmem.h>
@@ -56,13 +56,19 @@ void kernel_main() {
 
     enable_interrupts();
 
-    NuttleDiskStream* stream = diskstream_new(0);
+    int fd = file_open("0:/HELLO.TXT", FILE_MODE_READ);
+    
+    if(fd > 0) {
+        putsk("We opened SOME.TXT\n");
 
-    diskstream_seek(stream, 256);
+        char* buf = zmallock(20);
 
-    char buffer[4360];
+        int x = file_read(buf, 1, 18, fd);
 
-    diskstream_read(stream, buffer, 4354);
+        if(x == 0) {
+            putsk("Failed to read file!\n");
+        } else putsk(buf);
+    }
 
     putsk("AsifOS rocks!\n");
 }

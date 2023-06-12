@@ -50,6 +50,11 @@ all: create bootloader kernel
 	dd if=/dev/zero bs=1M count=256 >> $(OUTPUT_DIR)/os.img status=none
 	truncate -s 256M $(OUTPUT_DIR)/os.img
 
+	# Create and copy over a file.
+
+	echo "Welcome to AsifOS." > $(OUTPUT_DIR)/HELLO.TXT
+	mcopy -i $(OUTPUT_DIR)/os.img $(OUTPUT_DIR)/HELLO.TXT "::HELLO.TXT"
+
 	echo "Successfully created $(OUTPUT_DIR)/os.img"
 
 bootloader: 
