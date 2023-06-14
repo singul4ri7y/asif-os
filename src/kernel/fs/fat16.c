@@ -6,12 +6,20 @@
 
 int   fat16_resolve(NuttleDisk* disk);
 void* fat16_open(NuttleDisk* disk, PathPart* part, FileMode mode);
-int fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb, void* out);
+int   fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb, void* out);
+int   fat16_seek(void* private_desc, long offset, FileSeekMode whence);
+int   fat16_stat(void* private_data, NuttleFileStat* stat);
+int   fat16_close(void* private_data);
+long  fat16_tell(void* private_data);
 
 static NuttleFs fat16_fs = {
     .resolve = fat16_resolve,
     .open    = fat16_open,
     .read    = fat16_read,
+    .seek    = fat16_seek,
+    .stat    = fat16_stat,
+    .close   = fat16_close,
+    .tell    = fat16_tell,
     .fs_name = "FAT16"
 };
 
@@ -244,16 +252,20 @@ out:
 // Note: This function expects you to already set out the disk stream to the position you want to read from.
 
 static int fat16_read_internals(NuttleFATPrivate* private, NuttleDiskStream* stream, int cluster_size_in_bytes, 
-int directory_end_sector_pos, int sector_per_cluster, int bytes_per_sector, uint16_t* cluster, int* count, void* out) {
+int directory_end_sector_pos, int sector_per_cluster, int bytes_per_sector, uint16_t* cluster, int* count, void* out, int* read) {
     int res = 1;
 
-    if(ISERR(diskstream_read(stream, out, 512))) {
+    int bytes_to_read = *count + 512 > cluster_size_in_bytes ? cluster_size_in_bytes - *count : 512;
+
+    if(ISERR(diskstream_read(stream, out, bytes_to_read))) {
         res = 0;
 
         goto out;
     }
 
-    (*count) += 512;
+    (*count) += bytes_to_read;
+
+    if(read) *read = bytes_to_read;
 
     if(*count == cluster_size_in_bytes) {
         *cluster = fat16_get_next_cluster(private, *cluster);
@@ -298,7 +310,7 @@ static int fat16_get_total_number_of_directory_entries(NuttleFATPrivate* fat_pri
     int count = 0;
 
     while(fat16_read_internals(fat_private, stream, cluster_size_in_bytes, fat_private -> root_directory.end_sector_pos, 
-    fat_private -> header.sectors_per_cluster, fat_private -> header.bytes_per_sector, &cluster, &count, dir)) {
+    fat_private -> header.sectors_per_cluster, fat_private -> header.bytes_per_sector, &cluster, &count, dir, nullptr)) {
         for(int i = 0; i < 32; i++) {
             // If the first character in the filename in a directory entry is
             // 0, then then we reached the end.
@@ -358,7 +370,7 @@ static int fat16_resolve_directories(NuttleFATPrivate* fat_private, uint16_t clu
     int count = 0, dir_entry = 0;
 
     while(fat16_read_internals(fat_private, stream, cluster_size_in_bytes, fat_private -> root_directory.end_sector_pos, 
-    fat_private -> header.sectors_per_cluster, fat_private -> header.bytes_per_sector, &cluster, &count, dir)) {
+    fat_private -> header.sectors_per_cluster, fat_private -> header.bytes_per_sector, &cluster, &count, dir, nullptr)) {
         for(int i = 0; i < 32; i++) {
             // If the first character in the filename in a directory entry is
             // 0, then then we reached the end.
@@ -579,7 +591,9 @@ int fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb,
     int bps           = private -> header.bytes_per_sector;
     int sector_per_c  = private -> header.sectors_per_cluster;
     int cluster_bytes = sector_per_c * bps;
-    int sectors       = total / bps + (total % bps ? 1 : 0), count = 0;
+    int sectors       = total / bps + (total % bps ? 1 : 0);
+    
+    int count = desc -> pos, read;
 
     char* outptr = (char*) out;
     
@@ -587,27 +601,140 @@ int fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb,
 
     // Now set the stream to the very first cluster position.
 
-    if(ISERR(diskstream_seek(stream, fat16_cluster_to_sector(private -> root_directory.end_sector_pos, sector_per_c, cluster) * bps))) 
+    if(ISERR(diskstream_seek(stream, fat16_cluster_to_sector(private -> root_directory.end_sector_pos, sector_per_c, cluster) * bps + desc -> pos))) 
         goto out;
 
     while(sectors--) {
-        if(!fat16_read_internals(private, stream, cluster_bytes, private -> root_directory.end_sector_pos, sector_per_c, bps, &cluster, &count, buf)) 
+        if(!fat16_read_internals(private, stream, cluster_bytes, private -> root_directory.end_sector_pos, sector_per_c, bps, &cluster, &count, buf, &read)) 
             goto out;
         
-        if(total < bps) {
+        if(total < read) {
             memcpyk(outptr, buf, total * sizeof(char));
+
+            desc -> pos += total;
 
             break;
         }
 
-        memcpyk(outptr, buf, 512 * sizeof(char));
+        memcpyk(outptr, buf, read * sizeof(char));
 
-        total   -= 512;
-        outptr += 512;
+        total   -= read;
+        outptr += read;
+
+        desc -> pos += read;
     }
 
     res = nmemb;
 
 out: 
     return res;
+}
+
+int fat16_seek(void* private_desc, long offset, FileSeekMode whence) {
+    int res = NUTTLE_ALL_OK;
+
+    NuttleFATFileDescriptor* desc = private_desc;
+
+    long file_size = desc -> item -> directory -> file_size - 1;
+
+    switch(whence) {
+        case FILE_SEEK_MODE_CUR: {
+            if(offset + (long) desc -> pos >= file_size) {
+                res = -EIO;
+
+                goto out;
+            }
+
+            desc -> pos += offset;
+            
+            break;
+        }
+
+        case FILE_SEEK_MODE_SET: {
+            if(offset >= file_size) {
+                res = -EIO;
+
+                goto out;
+            }
+
+            desc -> pos = offset;
+
+            break;
+        }
+
+        case FILE_SEEK_MODE_END: {
+            // When using seek end, use negative offset value to move the cursor in 
+            // backward direction.
+
+            if(offset > 0) {
+                res = -EIO;
+
+                goto out;
+            }
+
+            if(-offset > file_size) {
+                res = -EIO;
+
+                goto out;
+            }
+
+            desc -> pos = file_size + offset;
+
+            break;
+        }
+
+        default: {
+            res = -EINVARG;
+
+            goto out;
+        }
+    }
+
+out: 
+    return res;
+}
+
+int fat16_stat(void* private_data, NuttleFileStat* stat) {
+    int res = NUTTLE_ALL_OK;
+
+    if(ISERRP(stat)) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    NuttleFATFileDescriptor* desc = private_data;
+
+    stat -> file_size = desc -> item -> directory -> file_size - 1;
+
+    stat -> flags = 0;
+
+    if(desc -> item -> directory -> attributes & FAT_FILE_READONLY) 
+        stat -> flags |= FILE_STAT_FLAG_READ_ONLY;
+
+out: 
+    return res;
+}
+
+int fat16_close(void* private_data) {
+    int res = NUTTLE_ALL_OK;
+
+    // Free the descriptor item.
+
+    NuttleFATFileDescriptor* desc = private_data;
+
+    if(desc -> item) 
+        fat16_free_item(desc -> item);
+    
+    // Now free the descriptor.
+
+    freek(desc);
+
+    return res;
+}
+
+long fat16_tell(void* private_data) {
+    NuttleFATFileDescriptor* desc = private_data;
+
+    return (long) desc -> pos;
 }

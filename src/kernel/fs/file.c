@@ -37,6 +37,12 @@ int file_new_descriptor(NuttleFileDescriptor** desc_out) {
 
     NuttleFileDescriptor* desc = (NuttleFileDescriptor*) mallock(sizeof(NuttleFileDescriptor));
 
+    if(ISERRP(desc)) {
+        res = -ENOMEM;
+
+        goto out;
+    }
+
     desc -> index = slot + 1;
     
     file_descriptors[slot] = desc;
@@ -48,6 +54,12 @@ out:
 }
 
 void file_free_descriptor(NuttleFileDescriptor* desc) {
+    // Free the slot.
+
+    file_descriptors[desc -> index - 1] = 0;
+
+    // Now free the descriptor.
+
     freek(desc);
 }
 
@@ -152,6 +164,76 @@ int file_read(void* buf, uint8_t size, size_t nmemb, int fd) {
     // Read from the filesystem.
 
     res = descriptor -> disk -> fs -> read(descriptor -> disk, descriptor -> data, size, nmemb, buf);
+
+out: 
+    return res;
+}
+
+int file_seek(int fd, long offset, FileSeekMode whence) {
+    int res = NUTTLE_ALL_OK;
+
+    NuttleFileDescriptor* desc = file_get_fd(fd);
+
+    if(ISERRP(desc)) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    res = desc -> disk -> fs -> seek(desc -> data, offset, whence);
+
+out: 
+    return res;
+}
+
+int file_stat(int fd, NuttleFileStat* stat) {
+    int res = NUTTLE_ALL_OK;
+
+    NuttleFileDescriptor* desc = file_get_fd(fd);
+
+    if(ISERRP(desc)) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    res = desc -> disk -> fs -> stat(desc -> data, stat);
+
+out: 
+    return res;
+}
+
+int file_close(int fd) {
+    int res = NUTTLE_ALL_OK;
+
+    NuttleFileDescriptor* desc = file_get_fd(fd);
+
+    if(ISERRP(desc)) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    if(ISERR(res = desc -> disk -> fs -> close(desc -> data))) 
+        goto out;
+    
+    // Free the descriptor.
+
+    file_free_descriptor(desc);
+
+out: 
+    return res;
+}
+
+int file_tell(int fd) {
+    int res = -1;
+
+    NuttleFileDescriptor* desc = file_get_fd(fd);
+
+    if(ISERRP(desc)) 
+        goto out;
+    
+    res = desc -> disk -> fs -> tell(desc -> data);
 
 out: 
     return res;

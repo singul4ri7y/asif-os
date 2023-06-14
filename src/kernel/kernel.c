@@ -59,15 +59,15 @@ void kernel_main() {
     int fd = file_open("0:/HELLO.TXT", FILE_MODE_READ);
     
     if(fd > 0) {
-        putsk("We opened SOME.TXT\n");
+        putsk("Reading from file HELLO.TXT: ");
 
-        char* buf = zmallock(20);
+        char* buf = zmallock(50);
 
-        int x = file_read(buf, 1, 18, fd);
+        file_read(buf, 1, 5, fd);
 
-        if(x == 0) {
-            putsk("Failed to read file!\n");
-        } else putsk(buf);
+        putsk(buf);
+
+        file_close(fd);
     }
 
     putsk("AsifOS rocks!\n");
