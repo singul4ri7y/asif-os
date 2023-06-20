@@ -6,15 +6,58 @@
 #include <nuttle/paging.h>
 #include <nuttle/fs/file.h>
 #include <nuttle/disk/stream.h>
+#include <nuttle/gdt/gdt.h>
+#include <nuttle/config.h>
+#include <nuttle/task/tss.h>
 #include <kernio.h>
 #include <kernmem.h>
 
+// Our Task State Segment.
+
+NuttleTSS tss;
+
+// GDT entries.
+
+GDTEntry gdt_entries[NUTTLE_MAX_GDT_ENTRIES];
+GDTEntryStructured gdt_entries_structured[NUTTLE_MAX_GDT_ENTRIES] = {
+    { .base = 0x00, .limit = 0x00, .access_and_flags = 0x00 },                    // Null segment.
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110010011010 },       // Kernel Code Segment.
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110010010010 },       // Kernel Data Segment.
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110011111000 },       // User code segment.
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110011110000 },
+    { .base = (uint32_t) &tss, .limit = sizeof(tss), .access_and_flags = 0b000011101001 }
+};
+
 static PagingChunk* kernel_paging_4gb_chunk = 0;
+
+void kernel_panic(const char* msg) {
+    putsk(msg);
+
+    // Now halt the kernel.
+
+    cpu_halt();
+
+    // If in case the CPU doesn't halt, forcefully halt it using infinite loop.
+
+    while(1) {}
+}
 
 void kernel_main() {
     // Intialize the Teletype Output screen.
 
     tty_init();
+
+    // Initialize the GDT.
+
+    memsetk(gdt_entries, 0x00, sizeof(gdt_entries));
+
+    // Encode our structured GDT entries to real gdt entries.
+
+    gdt_entry_from_structured(gdt_entries, gdt_entries_structured, NUTTLE_MAX_GDT_ENTRIES);
+
+    // Now load the GDT.
+
+    gdt_load(gdt_entries, sizeof(gdt_entries));
 
     // Initialize the heap.
 
@@ -27,6 +70,14 @@ void kernel_main() {
     // Initialize the Interrupt Descriptor Table.
 
     idt_init();
+
+    // Initialize the TSS.
+
+    tss_init(&tss);
+
+    // Load the TSS.
+
+    tss_load(0x28);
 
     // Initialize the disks.
 

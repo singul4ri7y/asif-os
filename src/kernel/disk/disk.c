@@ -2,6 +2,7 @@
 #include <nuttle/status.h>
 #include <nuttle/disk/disk.h>
 #include <nuttle/config.h>
+#include <nuttle/kernel.h>
 #include <kernmem.h>
 #include <kernio.h>
 
@@ -85,13 +86,8 @@ void disk_all_init() {
 
     // Fetch the suitable filesystem.
 
-    if(ISERR(fs_fetch_disk_fs(&p_disk))) {
-        // TODO: Implement kernel panic.
-
-        putsk("Could not resolve a suitable filesystem for disk!");
-
-        while(1) {}
-    }
+    if(ISERR(fs_fetch_disk_fs(&p_disk))) 
+        kernel_panic("Could not resolve a suitable filesystem for disk!");
 }
 
 // Get's a specific disk from index.

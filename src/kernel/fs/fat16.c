@@ -635,7 +635,7 @@ int fat16_seek(void* private_desc, long offset, FileSeekMode whence) {
 
     NuttleFATFileDescriptor* desc = private_desc;
 
-    long file_size = desc -> item -> directory -> file_size - 1;
+    long file_size = desc -> item -> directory -> file_size;
 
     switch(whence) {
         case FILE_SEEK_MODE_CUR: {
@@ -705,7 +705,7 @@ int fat16_stat(void* private_data, NuttleFileStat* stat) {
 
     NuttleFATFileDescriptor* desc = private_data;
 
-    stat -> file_size = desc -> item -> directory -> file_size - 1;
+    stat -> file_size = desc -> item -> directory -> file_size;
 
     stat -> flags = 0;
 

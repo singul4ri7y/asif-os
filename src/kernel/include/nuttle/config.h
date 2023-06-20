@@ -7,6 +7,10 @@
 
 #define NUTTLE_CODE_SEGMENT_SELECTOR    0x08
 
+// I have specified my Data Segment Selector 0x10.
+
+#define NUTTLE_DATA_SEGEMNT_SELECTOR    0x10
+
 // I am gonna have a static 100MB heap.
 
 #define NUTTLE_HEAP_SIZE_IN_BYTES       104857600
@@ -38,5 +42,9 @@
 // Size of a single FAT16 table entry.
 
 #define NUTTLE_FAT16_TABLE_ENTRY_SIZE   2
+
+// Maximum number of GDT entries.
+
+#define NUTTLE_MAX_GDT_ENTRIES          10
 
 #endif    // __NUTTLE_CONFIG_H__

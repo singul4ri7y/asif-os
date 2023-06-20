@@ -2,6 +2,7 @@
 #include <nuttle/config.h>
 #include <nuttle/status.h>
 #include <nuttle/fs/fat16.h>
+#include <nuttle/kernel.h>
 #include <kernio.h>
 #include <kernmem.h>
 
@@ -26,13 +27,8 @@ void fs_insert_filesystem(NuttleFs* filesystem) {
 
     // If no filesystem slot is available, panic.
 
-    if(!fs) {
-        // TODO: Implement and use kernel panic.
-
-        putsk("Could not insert the filesystem!\n");
-
-        while(1) {}
-    }
+    if(!fs) 
+        kernel_panic("Could not insert the filesystem!\n");
 
     *fs = filesystem;
 }

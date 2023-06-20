@@ -47,7 +47,7 @@ system_identifier_string        db 'FAT16   '    ; Identifier string for filesys
 
 gdt_start: 
 gdt_null: 
-    ; The first entry in GDT should always be null.
+    ; The first entry in GDT should always be null (Null segment).
 
     dq 0            ; First 8 bytes.
 
@@ -112,6 +112,8 @@ main:
 
     sti                ; Set/Enable interrupts.
 
+    ; TODO: Add other boot 16 bit code.
+
     ; Switch to 32-bit protected mode.
 
     cli                      ; Clear interrupts.
@@ -141,9 +143,9 @@ start_protected_mode:
     mov gs, ax
     mov fs, ax
 
-    ; We are gonna load our kernel in address 0x100000, the stack pointer may change in the future.
+    ; We are gonna load our kernel in address 0x100000. So there is plenty of room for the stack.
 
-    mov esp, 0x00200000
+    mov esp, 0x00600000
     mov ebp, eax
 
     ; Even if we are in 32-bit protected mode, we cannot access the full 4GB of memory. 
