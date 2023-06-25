@@ -4,9 +4,8 @@
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
 #include <nuttle/paging.h>
-#include <nuttle/fs/file.h>
 #include <nuttle/disk/stream.h>
-#include <nuttle/gdt/gdt.h>
+#include <nuttle/gdt.h>
 #include <nuttle/config.h>
 #include <nuttle/task/tss.h>
 #include <kernio.h>
@@ -85,7 +84,7 @@ void kernel_main() {
 
     // Creating 4GB paging chunk.
 
-    kernel_paging_4gb_chunk = paging_get_new_4gb_chunk(PAGING_IS_WRITTABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+    kernel_paging_4gb_chunk = paging_get_new_4gb_chunk(PAGING_IS_WRITABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
 
     // Set up the paging directory.
 
@@ -99,7 +98,7 @@ void kernel_main() {
 
     // Intel recommends to reserve the first 32 (0x1f counting from 0) interrupt in IDT for 
     // exception handling.
-    // So our new hardware ISR should start from 0x20.
+    // So our new hardware ISR should start from 0x20 (0x28 for slave).
 
     initialize_pic(0x20, 0x28);
 
@@ -114,7 +113,11 @@ void kernel_main() {
 
         char* buf = zmallock(50);
 
-        file_read(buf, 1, 5, fd);
+        file_seek(fd, 10, FILE_SEEK_MODE_CUR);
+
+        int read = file_read(buf, 1, 100, fd);
+
+        read += 0;
 
         putsk(buf);
 

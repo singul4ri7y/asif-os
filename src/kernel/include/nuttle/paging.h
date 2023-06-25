@@ -5,7 +5,7 @@
 
 typedef enum __enum_PageFlags {
     PAGING_IS_PRESENT         = 0x001,
-    PAGING_IS_WRITTABLE       = 0x002,
+    PAGING_IS_WRITABLE       = 0x002,
     PAGING_ACCESS_FROM_ALL    = 0x004,
     PAGING_WRITE_THROUG_CAHCE = 0x008,
     PAGING_CACHE_DISABLED     = 0x010,
@@ -25,9 +25,12 @@ typedef struct __struct_PagingChunk {
 } PagingChunk;
 
 PagingChunk* paging_get_new_4gb_chunk(uint16_t flags);
+void         paging_free_4gb_chunk(PagingChunk* chunk);
 uint32_t*    paging_get_directory(PagingChunk* chunk);
 void         paging_switch(uint32_t* directory);
-int          paging_set(uint32_t* directory, void* virt_addr, void* phy_addr);
+int          paging_map_to(PagingChunk* chunk, void* virt, void* phy_start, void* phy_end, PageFlags flags);
+int          paging_map(uint32_t* directory, void* virt_addr, void* phy_addr, PageFlags flags);
+void*        paging_align_addr(void* addr);
 
 extern void  enable_paging();
 

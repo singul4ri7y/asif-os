@@ -35,3 +35,10 @@ void strlowerk(char* str) {
         str++;
     }
 }
+
+void* strcpyk(char* dest, const char* src) {
+    while(*src) 
+        *dest++ = *src++;
+
+    return dest;
+}

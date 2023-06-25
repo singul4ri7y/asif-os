@@ -21,6 +21,7 @@ int  file_seek(int fd, long offset, FileSeekMode whence);
 int  file_stat(int fd, NuttleFileStat* stat);
 int  file_close(int fd);
 int  file_tell(int fd);
+int  file_is_valid(int fd);
 
 NuttleFileDescriptor* file_get_fd(int fd);
 

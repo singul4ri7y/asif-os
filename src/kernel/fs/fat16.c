@@ -584,6 +584,9 @@ int fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb,
     NuttleFATPrivate* private     = disk -> fs_private;
     NuttleFATFileDescriptor* desc = private_desc;
 
+    if(desc -> pos + total > desc -> item -> directory -> file_size) 
+        total = desc -> item -> directory -> file_size - desc -> pos;
+
     NuttleDiskStream* stream = private -> fat_data_stream;
 
     uint16_t cluster = fat16_get_cluster_number(desc -> item -> directory);
@@ -599,32 +602,34 @@ int fat16_read(NuttleDisk* disk, void* private_desc, uint8_t size, size_t nmemb,
     
     char buf[512];
 
+    int tmp_total = total;
+
     // Now set the stream to the very first cluster position.
 
-    if(ISERR(diskstream_seek(stream, fat16_cluster_to_sector(private -> root_directory.end_sector_pos, sector_per_c, cluster) * bps + desc -> pos))) 
+    if(ISERR(res = diskstream_seek(stream, fat16_cluster_to_sector(private -> root_directory.end_sector_pos, sector_per_c, cluster) * bps + desc -> pos))) 
         goto out;
 
     while(sectors--) {
         if(!fat16_read_internals(private, stream, cluster_bytes, private -> root_directory.end_sector_pos, sector_per_c, bps, &cluster, &count, buf, &read)) 
             goto out;
         
-        if(total < read) {
-            memcpyk(outptr, buf, total * sizeof(char));
+        if(tmp_total < read) {
+            memcpyk(outptr, buf, tmp_total * sizeof(char));
 
-            desc -> pos += total;
+            desc -> pos += tmp_total;
 
             break;
         }
 
         memcpyk(outptr, buf, read * sizeof(char));
 
-        total   -= read;
-        outptr += read;
+        tmp_total -= read;
+        outptr    += read;
 
         desc -> pos += read;
     }
 
-    res = nmemb;
+    res = total / size;
 
 out: 
     return res;

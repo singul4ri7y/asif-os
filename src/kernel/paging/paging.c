@@ -1,5 +1,6 @@
 #include <nuttle/paging.h>
 #include <nuttle/status.h>
+#include <nuttle/error.h>
 #include <kernmem.h>
 
 static uint32_t* current_directory = 0x00;
@@ -35,6 +36,30 @@ PagingChunk* paging_get_new_4gb_chunk(uint16_t flags) {
     return chunk;
 }
 
+void paging_free_4gb_chunk(PagingChunk* chunk) {
+    if(chunk == nullptr) 
+        return;
+
+    // We have 1024 page directory entries.
+
+    for(int i = 0; i < 1024; i++) {
+        // A single page directory entry points to a page table.
+
+        uint32_t entry = chunk -> directory[i];
+
+        uint32_t* table = (uint32_t*) (entry & ~0xfff);
+
+        // The table was heap allocated.
+
+        freek(table);
+    }
+
+    // Now free the directory entries and the chunk.
+
+    freek(chunk -> directory);
+    freek(chunk);
+}
+
 uint32_t* paging_get_directory(PagingChunk* chunk) {
     return chunk -> directory;
 }
@@ -49,8 +74,57 @@ void paging_switch(uint32_t* directory) {
     current_directory = directory;
 }
 
-uint8_t validate_alignment(void* addr) {
+static uint8_t validate_alignment(void* addr) {
     return ((uint32_t) addr % PAGING_SIZE) == 0u;
+}
+
+void* paging_align_addr(void* addr) {
+    uint32_t val = (uint32_t) addr;
+
+    if(val % PAGING_SIZE) 
+        val += PAGING_SIZE - (val % PAGING_SIZE);
+    
+    return (void*) val;
+}
+
+static int paging_map_range(uint32_t* directory, void* virt, void* phy, int count, PageFlags flags) {
+    int res = NUTTLE_ALL_OK;
+
+    for(int i = 0; i < count; i++) {
+        if(ISERR(res = paging_map(directory, virt, phy, flags))) 
+            goto out;
+        
+        virt += PAGING_SIZE;
+        phy  += PAGING_SIZE;
+    }
+
+out:    
+    return res;
+}
+
+int paging_map_to(PagingChunk* chunk, void* virt, void* phy_start, void* phy_end, PageFlags flags) {
+    int res = NUTTLE_ALL_OK;
+
+    // Validate alignment.
+
+    if(!validate_alignment(virt) || !validate_alignment(phy_start) || !validate_alignment(phy_end)) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    if((uint32_t) phy_end < (uint32_t) phy_start) {
+        res = -EINVARG;
+        
+         goto out;
+    }
+
+    int total_pages = (phy_end - phy_start) / PAGING_SIZE;
+
+    res = paging_map_range(chunk -> directory, virt, phy_start, total_pages, flags);
+
+out: 
+    return res;
 }
 
 static int paging_get_indices(void* virtual_address, uint32_t* directory_index, uint32_t* table_index, uint32_t* offset) {
@@ -82,7 +156,7 @@ out:
     return res;
 }
 
-int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
+int paging_map(uint32_t* directory, void* virt_addr, void* phy_addr, PageFlags flags) {
     int res = NUTTLE_ALL_OK;
 
     if(!validate_alignment(virt_addr) || !validate_alignment(phy_addr)) {
@@ -93,9 +167,8 @@ int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
     
     uint32_t directory_index, table_index;
 
-    res = paging_get_indices(virt_addr, &directory_index, &table_index, nullptr);
-
-    if(res < 0) goto out;
+    if(ISERR(res = paging_get_indices(virt_addr, &directory_index, &table_index, nullptr))) 
+        goto out;
 
     // Get the directory entry using directory index.
 
@@ -105,7 +178,7 @@ int paging_set(uint32_t* directory, void* virt_addr, void* phy_addr) {
 
     uint32_t* table = (uint32_t*) (entry & ~0xfff);        // ~0xfff = 0xfffff000, which indicates the first high 20 bits.
 
-    table[table_index] = (uint32_t) phy_addr | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITTABLE | PAGING_IS_PRESENT;
+    table[table_index] = (uint32_t) phy_addr | flags;
 
 out: 
     return res;

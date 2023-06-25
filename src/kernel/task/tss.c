@@ -8,5 +8,5 @@ void tss_init(NuttleTSS* tss) {
     // Our kernel stack pointer starts from 0x600000, and our stack segment is our data segment (see 'boot.asm').
 
     tss -> esp0 = 0x600000;
-    tss -> ss0  = NUTTLE_DATA_SEGEMNT_SELECTOR;
+    tss -> ss0  = NUTTLE_KERNEL_DATA_SEGMENT_SELECTOR;
 }

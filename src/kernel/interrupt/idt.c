@@ -25,7 +25,7 @@ void idt_add_entry(int interrupt_no, NuttleGateType type, void* address) {
     IDTEntry* entry = idt + interrupt_no;
 
     entry -> base_low  = (uint32_t) address & 0x0000ffff;
-    entry -> selector  = NUTTLE_CODE_SEGMENT_SELECTOR;
+    entry -> selector  = NUTTLE_KERNEL_CODE_SEGMENT_SELECTOR;
     entry -> reserved  = 0;
 
     // Add the gate type provided.

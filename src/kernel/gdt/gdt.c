@@ -1,4 +1,4 @@
-#include <nuttle/gdt/gdt.h>
+#include <nuttle/gdt.h>
 #include <nuttle/kernel.h>
 
 // Encodes a single GDT structured entry to a readable GDT entry.

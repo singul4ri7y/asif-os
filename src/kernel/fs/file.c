@@ -238,3 +238,7 @@ int file_tell(int fd) {
 out: 
     return res;
 }
+
+int file_is_valid(int fd) {
+    return fd > 0 && fd <= NUTTLE_MAX_FILE_DESCRIPTORS;
+}

@@ -22,7 +22,7 @@ typedef struct __struct_GDTEntry {
     // High 8 bits of the base.
 
     uint8_t base_high_8_bits;
-} GDTEntry;
+} __attribute__((packed)) GDTEntry;
 
 // A simplified version of over complicated GDT entry.
 
