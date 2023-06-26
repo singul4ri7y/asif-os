@@ -61,7 +61,7 @@ static int process_fill_data(const char* filename, NuttleProcess* process) {
 
     // Check for binary types.
 
-    if(ISERRP(res = process_load_binary(filename, process))) 
+    if(ISERR(res = process_load_binary(filename, process))) 
         goto out;
 
     // Set the filename.
@@ -126,6 +126,10 @@ static int process_load_to_slot(const char* filename, NuttleProcess** process, i
         goto out;
     }
 
+    // Set the task.
+
+    _process -> task = task;
+
     // Map the process physical memory to virtual addresses.
 
     if(ISERR(res = process_map_memory(_process))) 
@@ -138,11 +142,8 @@ static int process_load_to_slot(const char* filename, NuttleProcess** process, i
     processes[slot] = _process;
 
 out: 
-    if(ISERR(res) && _process != nullptr) {
-        // TODO: Fill in later.
-    };
-
-    // TODO: Implement and use process free.
+    if(ISERR(res) && _process != nullptr) 
+        process_free(_process);
 
     return res;
 }
@@ -191,4 +192,29 @@ int process_load(const char* filename, NuttleProcess** process) {
 
 out: 
     return res;
+}
+
+void process_free(NuttleProcess* process) {
+    if(ISERRP(process)) 
+        goto out;
+    
+    // Free the task.
+
+    if(process -> task) 
+        task_free(process -> task);
+
+    // Free the program and stack.
+
+    if(process -> program_stack_ptr) 
+        freek(process -> program_stack_ptr);
+
+    if(process -> ptr) 
+        freek(process -> ptr);
+    
+    // Finally free the process.
+
+    freek(process);
+
+out: 
+    return;
 }

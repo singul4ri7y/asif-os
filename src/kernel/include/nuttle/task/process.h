@@ -40,4 +40,9 @@ struct __struct_NuttleProcess {
     uint32_t size;
 };
 
+int process_load(const char* filename, NuttleProcess** process);
+NuttleProcess* process_get(int pid);
+NuttleProcess* process_current();
+void process_free(NuttleProcess* process);
+
 #endif    // __NUTTLE_PROCESS_H__

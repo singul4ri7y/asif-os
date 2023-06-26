@@ -8,6 +8,7 @@
 #include <nuttle/gdt.h>
 #include <nuttle/config.h>
 #include <nuttle/task/tss.h>
+#include <nuttle/task/process.h>
 #include <kernio.h>
 #include <kernmem.h>
 
@@ -106,23 +107,13 @@ void kernel_main() {
 
     enable_interrupts();
 
-    int fd = file_open("0:/HELLO.TXT", FILE_MODE_READ);
-    
-    if(fd > 0) {
-        putsk("Reading from file HELLO.TXT: ");
+    // Create a process.
 
-        char* buf = zmallock(50);
+    NuttleProcess* process;
 
-        file_seek(fd, 10, FILE_SEEK_MODE_CUR);
+    process_load("0:/HELLO.TXT", &process);
 
-        int read = file_read(buf, 1, 100, fd);
-
-        read += 0;
-
-        putsk(buf);
-
-        file_close(fd);
-    }
+    process_free(process);
 
     putsk("AsifOS rocks!\n");
 }
