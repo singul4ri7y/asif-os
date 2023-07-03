@@ -11,5 +11,6 @@
 #define EFSNOTUS          7        // Not valid filesystem. Return if a filesystem cannot resolve a disk.
 #define ERDONLY           8        // Readonly filesystem.
 #define EOPENDIR          9        // Trying to open a directory.
+#define ENOTASK          10        // No current task.
 
 #endif    // __NUTTLE_STATUS_H__

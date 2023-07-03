@@ -35,5 +35,4 @@ kbd_int:
     call kbd_int_handler
 
     popad
-
     iret

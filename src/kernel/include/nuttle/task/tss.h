@@ -33,6 +33,7 @@ typedef struct __struct_NuttleTSS {
 } NuttleTSS;
 
 extern void tss_load(int segment);
+
 void tss_init(NuttleTSS* tss);
 
 #endif    // __NUTTLE_TSS_H__

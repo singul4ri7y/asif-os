@@ -7,7 +7,7 @@
 typedef struct __struct_TaskRegisters {
     // General purpose registers.
 
-    uint32_t eax, ecx, edx, ebx, esp, esi, edi;
+    uint32_t eax, ecx, edx, ebx, esp, epb, esi, edi;
 
     // Flags.
 
@@ -46,5 +46,10 @@ typedef struct __struct_NuttleTask {
 
 NuttleTask* task_new(NuttleProcess* process);
 void        task_free(NuttleTask* task);
+void        task_switch(NuttleTask* task);
+int         task_run();
+
+extern void task_restore_gpr(TaskRegisters* regs);
+extern void task_jump_usermode(TaskRegisters* regs);
 
 #endif    // __NUTTLE_TASK_H__

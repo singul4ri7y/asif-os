@@ -1,4 +1,5 @@
 [BITS 32]
+section .asm
 
 global cpu_halt
 

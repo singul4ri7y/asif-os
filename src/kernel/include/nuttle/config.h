@@ -6,6 +6,11 @@
 // In my bootloader, I have specified my Kernel Code Segment Selector as 0x08.
 // Also in the C implementation of the GDT.
 
+// Use these code selector macros with Requested Privilage Level (RPL), 
+// like NUTTLE_KERNEL_CODE_SEGMENT_SELECTOR | 0 (RPL is 0 or kernel ring).
+// We can do this because the selector registers are aligned in 8 bit boundary and
+// last 3 bits are free to be used.
+
 #define NUTTLE_KERNEL_CODE_SEGMENT_SELECTOR  0x08
 
 // I have specified my Kernel Data Segment Selector 0x10.

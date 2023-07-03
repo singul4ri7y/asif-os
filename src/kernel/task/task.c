@@ -51,6 +51,28 @@ out:
     return ISERR(res) ? ERROR_P(res) : task;
 }
 
+void task_switch(NuttleTask* task) {
+    current = task;
+    paging_switch(task -> chunk -> directory);
+}
+
+// Run the current task.
+
+int task_run() {
+    int res = NUTTLE_ALL_OK;
+
+    if(current == nullptr) {
+        res = -ENOTASK;
+
+        goto out;
+    }
+
+    task_jump_usermode(&current -> registers);
+    
+out: 
+    return res;
+}
+
 static void task_list_remove(NuttleTask* task) {
     if(task -> prev) 
         task -> prev -> next = task -> next;
@@ -106,10 +128,12 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
     task -> registers.ip  = NUTTLE_USER_PROGRAM_VIRTUAL_ADDR;
     task -> registers.esp = NUTTLE_USER_STACK_VIRTUAL_ADDR_START;
 
-    // Also set user code and data segment.
+    // Also set the selector registers.
 
-    task -> registers.cs  = NUTTLE_USER_CODE_SEGMENT_SELECTOR;
-    task -> registers.ds  = NUTTLE_USER_DATA_SEGMENT_SELECTOR;
+    task -> registers.cs = NUTTLE_USER_CODE_SEGMENT_SELECTOR | 3;    // Also or'ing the RPL.
+    task -> registers.ds = NUTTLE_USER_DATA_SEGMENT_SELECTOR | 3;    // Same.
+    task -> registers.ss = task -> registers.ds;
+    task -> registers.es = task -> registers.ds;
 
     // Now just simply set the process.
 

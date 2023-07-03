@@ -218,3 +218,7 @@ void process_free(NuttleProcess* process) {
 out: 
     return;
 }
+
+void process_switch(NuttleProcess* process) {
+    task_switch(process -> task);
+}
