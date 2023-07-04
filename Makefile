@@ -1,9 +1,10 @@
 ASM := nasm
 
-SRC_DIR    := src
-BUILD_DIR  := bin/build
-DEPS_DIR   := $(BUILD_DIR)/deps
-OUTPUT_DIR := bin/target/i386
+SRC_DIR     := src
+BUILD_DIR   := bin/build
+DEPS_DIR    := $(BUILD_DIR)/deps
+OUTPUT_DIR  := bin/target/i386
+PROGRAM_DIR := programs/bin/
 
 BOOTLOADER_SRC := $(SRC_DIR)/boot/boot.asm
 BOOTLOADER_OUT := $(BUILD_DIR)/boot.bin
@@ -21,7 +22,7 @@ COMP_FALGS := $(KERN_FLAGS) -MMD -MF
 .PHONY: 
 .SILENT:
 
-all: create bootloader kernel
+all: create bootloader kernel programz
 	echo "Linking the bootloader, kernel and creating the final bootable OS..."
 	dd if=$(BUILD_DIR)/boot.bin > $(OUTPUT_DIR)/os.img status=none
 	dd if=$(BUILD_DIR)/kernel.bin >> $(OUTPUT_DIR)/os.img status=none
@@ -50,10 +51,9 @@ all: create bootloader kernel
 	dd if=/dev/zero bs=1M count=256 >> $(OUTPUT_DIR)/os.img status=none
 	truncate -s 256M $(OUTPUT_DIR)/os.img
 
-	# Create and copy over a file.
+	# Now push all the programs to the filesystem.
 
-	echo "Welcome to AsifOS." > $(OUTPUT_DIR)/HELLO.TXT
-	mcopy -i $(OUTPUT_DIR)/os.img $(OUTPUT_DIR)/HELLO.TXT "::HELLO.TXT"
+	mcopy -i $(OUTPUT_DIR)/os.img $(PROGRAM_DIR)/blank.bin "::blank.bin"
 
 	echo "Successfully created $(OUTPUT_DIR)/os.img"
 
@@ -83,8 +83,13 @@ $(BUILD_DIR)/%.c.obj: $(SRC_DIR)/kernel/%.c
 create: 
 	mkdir -p bin/{build/deps,target/i386}
 
+programz: 
+	echo "Generating programs for AsifOS..."
+	$(MAKE) -s -C ./programs/
+
 clean: 
 	rm -rf bin
+	$(MAKE) clean -s -C ./programs/
 
 # Inlcude all the header file dependencies.
 

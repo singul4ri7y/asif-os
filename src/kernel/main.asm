@@ -22,14 +22,12 @@ kernel_init:
 
     call kernel_main
 
-    jmp end
-
 end: 
     ; Halt the CPU.
 
     hlt
 
 ; If in some case the processor core doesn't stop executing, create a infinite
-; jump loop for further code execution.
+; jump loop to reduce further code execution.
 
 jmp $

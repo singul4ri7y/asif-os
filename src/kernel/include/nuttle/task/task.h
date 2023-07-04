@@ -11,15 +11,15 @@ typedef struct __struct_TaskRegisters {
 
     // Flags.
 
-    uint32_t flags;
+    uint32_t eflags;
 
     // Instruction pointer.
 
-    uint32_t ip;
+    uint32_t eip;
 
     // Segment registers.
 
-    uint32_t cs, ds, ss, es;
+    uint32_t cs, ds, fs, gs, ss, es;
 } TaskRegisters;
 
 // Forward delcaration of the process structure.

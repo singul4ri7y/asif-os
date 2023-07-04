@@ -1,6 +1,6 @@
-/* Entry point of the kernel. */
+/* Entry point of the program. */
 
-ENTRY(kernel_init)
+ENTRY(_start)
 
 /* Output foramt. */
 
@@ -9,17 +9,9 @@ OUTPUT_FORMAT(binary)
 /* Sections. */
 
 SECTIONS {
-    /* Load the kernel after 1MB of memory, which has address of 0x100000. */
+    /* Load the program after at virtual memory address 0x400000. */
 
-    . = 1M;
-
-    /** Sections are 4KB aligned for memory paging. */
-
-    /* Put the bootstrap assembly code at the top. */
-
-    .bootstrap BLOCK(4K) : ALIGN(4K) {
-        *(.bootstrap)
-    }
+    . = 0x400000;
 
     /* Text section. */
 

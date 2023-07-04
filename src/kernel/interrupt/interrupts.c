@@ -2,6 +2,7 @@
 #include <nuttle/pic.h>
 #include <nuttle/io.h>
 #include <nuttle/config.h>
+#include <nuttle/kernel.h>
 #include <kernio.h>
 
 // No interrupt handler, defined in interrupt/idt.asm
@@ -17,11 +18,12 @@ void noint_handler() {
     acknowledge_int(0);
 }
 
-void syscall_int_handler() {
-    putsk("Not implementded!\n");
+void general_protection_fault_handler() {
+    kernel_panic("General protection fault!!\n");
 }
 
 extern void kbd_int();
+extern void general_protection_fault();
 
 void interrupt_init() {
     // Fill the IDT with default no interrupt handler.
@@ -35,4 +37,5 @@ void interrupt_init() {
         idt_add_entry(i, NUTTLE_TRAP_GATE, noint);
 
     idt_add_entry(0x21, NUTTLE_INTERRUPT_GATE, kbd_int);
+    idt_add_entry(0xd, NUTTLE_TRAP_GATE, general_protection_fault);
 }

@@ -1,0 +1,7 @@
+megs: 128
+romimage: file=/usr/share/bochs/BIOS-bochs-latest, address=0xfffe0000
+vgaromimage: file=/usr/share/bochs/VGABIOS-lgpl-latest
+ata0-master: type=disk, path="bin/target/i386/os.img", cylinders=5, heads=16, spt=32
+boot: disk
+mouse: enabled=0
+display_library: sdl, options="gui_debug"

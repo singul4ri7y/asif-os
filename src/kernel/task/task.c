@@ -115,7 +115,7 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
 
     // Create the paging chunk.
 
-    task -> chunk = paging_get_new_4gb_chunk(PAGING_IS_PRESENT | PAGING_IS_WRITABLE);
+    task -> chunk = paging_get_new_4gb_chunk(PAGING_IS_PRESENT | PAGING_IS_WRITABLE | PAGING_ACCESS_FROM_ALL);
 
     if(ISERRP(task -> chunk)) {
         res = -ENOMEM;
@@ -125,7 +125,7 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
 
     // Set the virtual memory locations for the user program instruction pointer, stack pointer.
 
-    task -> registers.ip  = NUTTLE_USER_PROGRAM_VIRTUAL_ADDR;
+    task -> registers.eip  = NUTTLE_USER_PROGRAM_VIRTUAL_ADDR;
     task -> registers.esp = NUTTLE_USER_STACK_VIRTUAL_ADDR_START;
 
     // Also set the selector registers.
@@ -134,6 +134,8 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
     task -> registers.ds = NUTTLE_USER_DATA_SEGMENT_SELECTOR | 3;    // Same.
     task -> registers.ss = task -> registers.ds;
     task -> registers.es = task -> registers.ds;
+    task -> registers.fs = task -> registers.ds;
+    task -> registers.gs = task -> registers.ds;
 
     // Now just simply set the process.
 

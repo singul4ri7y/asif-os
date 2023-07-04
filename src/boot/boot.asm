@@ -59,7 +59,7 @@ gdt_code:           ; Descriptor for the code segment.
     dw 0x0
     db 0x0
 
-    db 0b10011010   ; Present, Privilage, Type and Type flags.
+    db 0b10011010   ; Present, Privilege, Type and Type flags.
     db 0b11001111   ; Other 4 bit flags and last 4 bit of the segment limit.
     db 0x0          ; Last 8 bits of the base.
 
@@ -71,7 +71,7 @@ gdt_data:           ; Descriptor for the data segment.
     dw 0x0
     db 0x0
 
-    db 0b10010010   ; Present, Privilage, Type and Type flags.
+    db 0b10010010   ; Present, Privilge, Type and Type flags.
     db 0b11001111   ; Other 4 bit flags and last 4 bit of the segment limit.
     db 0x0          ; Last 8 bits of the base.
 
@@ -179,9 +179,9 @@ start_protected_mode:
     mov eax, 1             ; Read the second sector (0 based indexing).
     mov ecx, 100           ; Number of sectors to read.
 
-    ; The first contiguous unbounded memory starts after 1MB, from hex 0x00100000.
+    ; The first contiguous unbounded memory starts after 1MB, from hex 0x00100000. So, we are gonna load our kernel there.
 
-    mov edi, 0x00100000    ; Memory address to load the sectors to.
+    mov edi, KERNEL_ADDR   ; Memory address to load the sectors to.
 
     call ata_lba_read      ; Read the drive sectors holding kernel into memory.
 
@@ -196,6 +196,8 @@ start_protected_mode:
 ;     EAX: Logical Block Address of the sector to start reading from.
 ;     ECX: Numer of sectors to read.
 ;     EDI: The buffer to load the sectors to in the memory.
+; 
+; Uses 28-bit LBA addressing.
 ; 
 ; Returns: NONE
 ; 

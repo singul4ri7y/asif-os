@@ -11,7 +11,7 @@ typedef struct __struct_GDTEntry {
     uint16_t base_16_bits;
     uint8_t  base_8_bits;
 
-    // Access byte which holds Present bit, Privilage bit, type bit etc.
+    // Access byte which holds Present bit, privilege bit, type bit etc.
 
     uint8_t access_byte;
 

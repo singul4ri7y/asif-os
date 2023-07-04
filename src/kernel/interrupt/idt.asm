@@ -2,10 +2,11 @@ section .asm
     global idt_load_descriptor
     global noint
     global kbd_int
-    global enable
+    global general_protection_fault
 
 extern kbd_int_handler
 extern noint_handler
+extern general_protection_fault_handler
 
 idt_load_descriptor: 
     push ebp
@@ -25,14 +26,18 @@ noint:
     popad
     iret
 
-enable:
-    sti
-    ret
-
 kbd_int: 
     pushad
 
     call kbd_int_handler
+
+    popad
+    iret
+
+general_protection_fault: 
+    pushad 
+
+    call general_protection_fault_handler
 
     popad
     iret

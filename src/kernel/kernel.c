@@ -21,10 +21,10 @@ NuttleTSS tss;
 GDTEntry gdt_entries[NUTTLE_MAX_GDT_ENTRIES];
 GDTEntryStructured gdt_entries_structured[NUTTLE_MAX_GDT_ENTRIES] = {
     { .base = 0x00, .limit = 0x00, .access_and_flags = 0x00 },                    // Null segment.
-    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110010011010 },       // Kernel Code Segment.
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110010011000 },       // Kernel Code Segment.
     { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110010010010 },       // Kernel Data Segment.
     { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110011111000 },       // User code segment.
-    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110011110000 },
+    { .base = 0x00, .limit = 0xfffff, .access_and_flags = 0b110011110010 },       // User data segment.
     { .base = (uint32_t) &tss, .limit = sizeof(tss), .access_and_flags = 0b000011101001 }
 };
 
@@ -105,13 +105,19 @@ void kernel_main() {
 
     // Now enable all the interrupts.
 
-    enable_interrupts();
+    // enable_interrupts();
 
     // Create a process.
 
     NuttleProcess* process;
 
-    process_load("0:/HELLO.TXT", &process);
+    if(ISERR(process_load("0:/BLANK.BIN", &process))) {
+        kernel_panic("Could not load program: BLANK.BIN\n");
+    }
+
+    process_switch(process);
+
+    task_run();
 
     process_free(process);
 

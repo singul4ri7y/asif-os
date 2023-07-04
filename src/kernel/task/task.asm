@@ -4,58 +4,66 @@ section .asm
 global task_restore_gpr
 global task_jump_usermode
 
-; vodi task_jump_usermode(TaskRegisters* regs);
+; void task_jump_usermode(TaskRegisters* regs);
 
 task_jump_usermode: 
+    ; The iret instruction works in the following way: 
+    ;   It requires 5 elements to be at stack in order respectively, EIP, CS, EFLAGS, ESP and SS.
+    ;   The iret instruction pops the EIP, CS, EFLAGS and ESP from the stack, but not the SS.
+    ;   The iret instruction set's the values of EIP, CS, EFLAGS and ESP respectively and looks
+    ;   up to the stack for the SS (without poping it). The SS and CS are set simultaneously, so
+    ;   there's no need to set the SS explicitly. But the SS doesn't get popped, for god knows why -_-.
+
     mov ebp, esp
 
-    ; Access the strucure passed to us.
+    ; Get the structure passed to us.
 
     mov esi, [ebp + 4]
 
-    ; Push the data selector.
+    ; Push the Stack Segment.
 
-    push dword [esi + 44]
+    push dword [esi + 56]
 
-    ; Push the stack pointer defined by the user task.
+    ; Push the stack pointer (Here I will push the user stack pointer that is created for every task).
 
-    push dword [esi + 40]
+    push dword [esi + 16]
 
-    ; Push the flags.
+    ; Push the flags, enabling the interrupts. I will not enable the interrupts using the STI instruction, 
+    ; cause it will also enable the interrupts for the kernel. Interrupts for the kernel may or may not be 
+    ; enabled at this point, depends on the kernel state. But we need the interrupts turned on for the 
+    ; usermode, period.
 
     pushfd
-
-    ; We need the interrupts to be enabled in usermode even if it's disabled in kernel mode.
-
     pop eax
 
-    ; Set the 10th bit to enable the interrupts.
+    ; The 10th flag is the interrupt flag (IF).
 
-    or eax, 0x200
+    or eax, 1 << 9
 
     push eax
 
-    ; Push the instruction pointer of the task.
+    ; Now push the Code Segment.
 
-    push dword [edi + 36]
+    push dword [esi + 40]
 
-    ; Set all the general purpose and segment registers to get back to the
-    ; previous state of the task if it exists.
+    ; Push the Intruction Pointer (EIP).
+
+    push dword [esi + 36]
+
+    ; Finally restore the previous task execution frame, if the task ran before.
 
     push dword [ebp + 4]
-
     call task_restore_gpr
-
     add esp, 4
 
-    ; Now let's go to the usermode!
+    ; We are ready to go the the usermode!
 
-    iretd
+    iret
 
 ; void task_restore_gpr(TaskRegisters* regs);
 
 task_restore_gpr: 
-    ; No need to create any frame using ebp, cause it's going to be chagne anyway.
+    ; No need to create any frame using ebp, cause it's going to be changed anyway.
 
     mov ebp, esp
 
@@ -70,8 +78,9 @@ task_restore_gpr:
     ; The segment registers.
 
     mov ds, [edi + 44]
-    mov ss, [edi + 48]
-    mov es, [edi + 52]
+    mov fs, [edi + 48]
+    mov gs, [edi + 52]
+    mov es, [edi + 60]
 
     mov edi, [edi + 28]
 

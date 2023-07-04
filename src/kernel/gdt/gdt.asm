@@ -32,7 +32,7 @@ gdt_load:
 
     pop edx
 
-    ; The interrupt flag is the 9th flag.
+    ; The interrupt flag is the 10th flag.
 
     and edx, 1 << 9
 
