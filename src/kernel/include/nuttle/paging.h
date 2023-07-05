@@ -27,7 +27,7 @@ typedef struct __struct_PagingChunk {
 PagingChunk* paging_get_new_4gb_chunk(uint16_t flags);
 void         paging_free_4gb_chunk(PagingChunk* chunk);
 uint32_t*    paging_get_directory(PagingChunk* chunk);
-void         paging_switch(uint32_t* directory);
+void         paging_switch(PagingChunk* directory);
 int          paging_map_to(PagingChunk* chunk, void* virt, void* phy_start, void* phy_end, PageFlags flags);
 int          paging_map(uint32_t* directory, void* virt_addr, void* phy_addr, PageFlags flags);
 void*        paging_align_addr(void* addr);

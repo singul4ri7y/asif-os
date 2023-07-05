@@ -68,7 +68,9 @@ uint32_t* paging_get_directory(PagingChunk* chunk) {
 
 extern void paging_load_directory(void*);
 
-void paging_switch(uint32_t* directory) {
+void paging_switch(PagingChunk* chunk) {
+    uint32_t* directory = paging_get_directory(chunk);
+
     paging_load_directory(directory);
 
     current_directory = directory;
@@ -121,7 +123,7 @@ int paging_map_to(PagingChunk* chunk, void* virt, void* phy_start, void* phy_end
 
     int total_pages = (phy_end - phy_start) / PAGING_SIZE;
 
-    res = paging_map_range(chunk -> directory, virt, phy_start, total_pages, flags);
+    res = paging_map_range(paging_get_directory(chunk), virt, phy_start, total_pages, flags);
 
 out: 
     return res;

@@ -89,7 +89,7 @@ void kernel_main() {
 
     // Set up the paging directory.
 
-    paging_switch(paging_get_directory(kernel_paging_4gb_chunk));
+    paging_switch(kernel_paging_4gb_chunk);
 
     // Now enable paging.
 

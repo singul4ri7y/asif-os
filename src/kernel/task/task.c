@@ -53,7 +53,7 @@ out:
 
 void task_switch(NuttleTask* task) {
     current = task;
-    paging_switch(task -> chunk -> directory);
+    paging_switch(task -> chunk);
 }
 
 // Run the current task.
