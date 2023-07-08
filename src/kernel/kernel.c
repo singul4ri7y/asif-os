@@ -4,6 +4,7 @@
 #include <nuttle/pic.h>
 #include <nuttle/kheap.h>
 #include <nuttle/paging.h>
+#include <nuttle/isr80h.h>
 #include <nuttle/disk/stream.h>
 #include <nuttle/gdt.h>
 #include <nuttle/config.h>
@@ -40,6 +41,11 @@ void kernel_panic(const char* msg) {
     // If in case the CPU doesn't halt, forcefully halt it using infinite loop.
 
     while(1) {}
+}
+
+void kernel_page() {
+    restore_kernel_segment_registers();
+    paging_switch(kernel_paging_4gb_chunk);
 }
 
 void kernel_main() {
@@ -106,6 +112,10 @@ void kernel_main() {
     // Now enable all the interrupts.
 
     // enable_interrupts();
+
+    // Register all the kernel commands.
+
+    isr80h_init_kernel_commands();
 
     // Create a process.
 

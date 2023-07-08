@@ -3,6 +3,7 @@
 #include <nuttle/io.h>
 #include <nuttle/config.h>
 #include <nuttle/kernel.h>
+#include <nuttle/isr80h.h>
 #include <kernio.h>
 
 // No interrupt handler, defined in interrupt/idt.asm
@@ -38,4 +39,5 @@ void interrupt_init() {
 
     idt_add_entry(0x21, NUTTLE_INTERRUPT_GATE, kbd_int);
     idt_add_entry(0xd, NUTTLE_TRAP_GATE, general_protection_fault);
+    idt_add_entry(0x80, NUTTLE_INTERRUPT_GATE, isr80h_wrapper);
 }

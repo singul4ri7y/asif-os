@@ -7,7 +7,7 @@
 typedef struct __struct_TaskRegisters {
     // General purpose registers.
 
-    uint32_t eax, ecx, edx, ebx, esp, epb, esi, edi;
+    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
 
     // Flags.
 
@@ -20,7 +20,7 @@ typedef struct __struct_TaskRegisters {
     // Segment registers.
 
     uint32_t cs, ds, fs, gs, ss, es;
-} TaskRegisters;
+} __attribute__((packed)) TaskRegisters;
 
 // Forward delcaration of the process structure.
 
@@ -48,8 +48,11 @@ NuttleTask* task_new(NuttleProcess* process);
 void        task_free(NuttleTask* task);
 void        task_switch(NuttleTask* task);
 int         task_run();
+void        task_page();
+void        task_store_frame(TaskRegisters* regs);
 
 extern void task_restore_gpr(TaskRegisters* regs);
 extern void task_jump_usermode(TaskRegisters* regs);
+extern void task_restore_user_segment_registers();
 
 #endif    // __NUTTLE_TASK_H__

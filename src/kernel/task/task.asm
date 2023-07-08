@@ -3,6 +3,8 @@ section .asm
 
 global task_restore_gpr
 global task_jump_usermode
+global task_restore_user_segment_registers
+
 
 ; void task_jump_usermode(TaskRegisters* regs);
 
@@ -26,7 +28,7 @@ task_jump_usermode:
 
     ; Push the stack pointer (Here I will push the user stack pointer that is created for every task).
 
-    push dword [esi + 16]
+    push dword [esi + 12]
 
     ; Push the flags, enabling the interrupts. I will not enable the interrupts using the STI instruction, 
     ; cause it will also enable the interrupts for the kernel. Interrupts for the kernel may or may not be 
@@ -68,12 +70,13 @@ task_restore_gpr:
     mov ebp, esp
 
     mov edi, [ebp + 4]
-    mov eax, [edi]
-    mov ecx, [edi + 4]
-    mov edx, [edi + 8]
-    mov ebx, [edi + 12]
-    mov ebp, [edi + 20]
-    mov esi, [edi + 24]
+
+    mov eax, [edi + 28]
+    mov ecx, [edi + 24]
+    mov edx, [edi + 20]
+    mov ebx, [edi + 16]
+    mov ebp, [edi + 8]
+    mov esi, [edi + 4]
 
     ; The segment registers.
 
@@ -82,6 +85,19 @@ task_restore_gpr:
     mov gs, [edi + 52]
     mov es, [edi + 60]
 
-    mov edi, [edi + 28]
+    mov edi, [edi]
+
+    ret
+
+task_restore_user_segment_registers: 
+    ; Our user data segment register GDT offset is 32 (0x20).
+    ; So the segment value should be with RPL 35 (0x23).
+
+    mov ax, 0x23
+
+    mov ds, ax
+    mov fs, ax
+    mov gs, ax
+    mov es, ax
 
     ret

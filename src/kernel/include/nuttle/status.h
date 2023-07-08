@@ -12,5 +12,6 @@
 #define ERDONLY           8        // Readonly filesystem.
 #define EOPENDIR          9        // Trying to open a directory.
 #define ENOTASK          10        // No current task.
+#define ETAKEN           11        // An entry is taken.
 
 #endif    // __NUTTLE_STATUS_H__

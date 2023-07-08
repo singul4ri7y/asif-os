@@ -1,3 +1,4 @@
+#include <nuttle/kernel.h>
 #include <nuttle/task/task.h>
 #include <nuttle/status.h>
 #include <nuttle/config.h>
@@ -54,6 +55,27 @@ out:
 void task_switch(NuttleTask* task) {
     current = task;
     paging_switch(task -> chunk);
+}
+
+void task_page() {
+    task_restore_user_segment_registers();
+
+    paging_switch(task_get_current() -> chunk);
+}
+
+void task_store_frame(TaskRegisters* regs) {
+    // If there is no current task, panic the kernel.
+
+    if(task_get_current() == nullptr) 
+        kernel_panic("task_store_frame(): No current task!\n");
+
+    // The interrupt frame structure and the task register structure are 
+    // built in same order. So, they can be easily casted and copied from one
+    // another.
+
+    // We are copying total 32 bytes of data (8 registers in total).
+
+    memcpyk(&task_get_current() -> registers, regs, 8u * sizeof(uint32_t));
 }
 
 // Run the current task.

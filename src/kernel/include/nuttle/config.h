@@ -88,4 +88,8 @@
 
 #define NUTTLE_MAX_PROCESSES                 16
 
+// Maximum number of kernel commands.
+
+#define NUTTLE_ISR80H_MAX_COMMANDS           8
+
 #endif    // __NUTTLE_CONFIG_H__
