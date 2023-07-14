@@ -31,6 +31,7 @@ void         paging_switch(PagingChunk* directory);
 int          paging_map_to(PagingChunk* chunk, void* virt, void* phy_start, void* phy_end, PageFlags flags);
 int          paging_map(uint32_t* directory, void* virt_addr, void* phy_addr, PageFlags flags);
 void*        paging_align_addr(void* addr);
+void*        paging_get_physical_addr(PagingChunk* chunk, void* virt);
 
 extern void  enable_paging();
 

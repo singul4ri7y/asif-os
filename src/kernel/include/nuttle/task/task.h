@@ -45,11 +45,14 @@ typedef struct __struct_NuttleTask {
 } NuttleTask;
 
 NuttleTask* task_new(NuttleProcess* process);
+NuttleTask* task_get_current();
 void        task_free(NuttleTask* task);
 void        task_switch(NuttleTask* task);
 int         task_run();
 void        task_page();
 void        task_store_frame(TaskRegisters* regs);
+uint32_t    task_get_stack_item(NuttleTask* task, int index);
+void        task_copy_string(NuttleTask* task, void* virt, void* phy, int size);
 
 extern void task_restore_gpr(TaskRegisters* regs);
 extern void task_jump_usermode(TaskRegisters* regs);

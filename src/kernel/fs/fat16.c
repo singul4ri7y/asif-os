@@ -196,7 +196,7 @@ static uint16_t fat16_get_next_cluster(NuttleFATPrivate* private, uint16_t clust
 
     NuttleDiskStream* stream = private -> fat_table_stream;
 
-    if(ISERR(diskstream_seek(stream, private -> root_directory.end_sector_pos * private -> header.bytes_per_sector + cluster * NUTTLE_FAT16_TABLE_ENTRY_SIZE))) {
+    if(ISERR(diskstream_seek(stream, private -> header.reserved_sectors * private -> header.bytes_per_sector + cluster * NUTTLE_FAT16_TABLE_ENTRY_SIZE))) {
         res = 0xffff;
 
         goto out;

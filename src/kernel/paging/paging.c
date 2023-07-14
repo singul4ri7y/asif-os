@@ -182,6 +182,34 @@ int paging_map(uint32_t* directory, void* virt_addr, void* phy_addr, PageFlags f
 
     table[table_index] = (uint32_t) phy_addr | flags;
 
+    // Now update the page directory.
+
+    directory[directory_index] = (uint32_t) entry | flags;
+
 out: 
     return res;
+}
+
+void* paging_get_physical_addr(PagingChunk* chunk, void* virt) {
+    int res = NUTTLE_ALL_OK;
+
+    // Get the directory and table indicies.
+
+    uint32_t directory_index, table_index, offset;
+
+    if(ISERR(res = paging_get_indices(virt, &directory_index, &table_index, &offset))) 
+        goto out;
+    
+    uint32_t entry = chunk -> directory[directory_index];
+
+    // Get the table address.
+
+    uint32_t* table = (uint32_t*) (entry & ~0xfff);
+
+    // Now get the page with physical address.
+
+    void* addr = (void*) ((table[table_index] & ~0xfff) | offset);
+
+out: 
+    return ISERR(res) ? ERROR_P(res) : addr;
 }

@@ -3,10 +3,12 @@ section .asm
     global noint
     global kbd_int
     global general_protection_fault
+    global paging_fault
 
 extern kbd_int_handler
 extern noint_handler
 extern general_protection_fault_handler
+extern paging_fault_handler
 
 idt_load_descriptor: 
     push ebp
@@ -38,6 +40,14 @@ general_protection_fault:
     pushad 
 
     call general_protection_fault_handler
+
+    popad
+    iret
+
+paging_fault: 
+    pushad
+
+    call paging_fault_handler
 
     popad
     iret

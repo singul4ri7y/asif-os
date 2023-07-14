@@ -52,15 +52,19 @@ out:
     return ISERR(res) ? ERROR_P(res) : task;
 }
 
+static void task_page_task(NuttleTask* task) {
+    task_restore_user_segment_registers();
+
+    paging_switch(task -> chunk);
+}
+
 void task_switch(NuttleTask* task) {
     current = task;
     paging_switch(task -> chunk);
 }
 
 void task_page() {
-    task_restore_user_segment_registers();
-
-    paging_switch(task_get_current() -> chunk);
+    task_page_task(task_get_current());
 }
 
 void task_store_frame(TaskRegisters* regs) {
@@ -137,7 +141,7 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
 
     // Create the paging chunk.
 
-    task -> chunk = paging_get_new_4gb_chunk(PAGING_IS_PRESENT | PAGING_IS_WRITABLE | PAGING_ACCESS_FROM_ALL);
+    task -> chunk = paging_get_new_4gb_chunk(PAGING_IS_PRESENT | PAGING_IS_WRITABLE);
 
     if(ISERRP(task -> chunk)) {
         res = -ENOMEM;
@@ -165,4 +169,35 @@ static int task_init(NuttleTask* task, NuttleProcess* process) {
 
 out: 
     return res;
+}
+
+// Get the stack value of given index (e.g. index 0 will indicate the first pushed stack value, 1 will 
+// be the second and so on so forth) of the user stack of a task.
+
+uint32_t task_get_stack_item(NuttleTask* task, int index) {
+    uint32_t result = 0;
+
+    // Switch to that task page (for hardware accelerated virtual address decoding).
+
+    task_page_task(task);
+
+    // x86 stack grows backwards.
+
+    uint32_t* stack = (uint32_t*) NUTTLE_USER_STACK_VIRTUAL_ADDR_END;
+
+    result = stack[(NUTTLE_USER_STACK_SIZE / 4) - (index + 1)];        // We are using unsigned integer pointer type.
+
+    // Go back to kernel page.
+
+    kernel_page();
+
+    return result;
+}
+
+void task_copy_string(NuttleTask* task, void* virt_src, void* phy_dest, int size) {
+    // Get the physical address from the virtual address.
+
+    void* phy_src = paging_get_physical_addr(task -> chunk, virt_src);
+
+    memcpyk(phy_dest, phy_src, size);
 }

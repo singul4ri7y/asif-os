@@ -33,7 +33,7 @@ struct __struct_NuttleProcess {
 
     // Physical address to the stack memory of the process.
 
-    void* program_stack_ptr;
+    void* stack;
 
     // The size of the data pointed to by the 'ptr'.
 

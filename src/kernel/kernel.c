@@ -91,7 +91,7 @@ void kernel_main() {
 
     // Creating 4GB paging chunk.
 
-    kernel_paging_4gb_chunk = paging_get_new_4gb_chunk(PAGING_IS_WRITABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+    kernel_paging_4gb_chunk = paging_get_new_4gb_chunk(PAGING_IS_WRITABLE | PAGING_IS_PRESENT);
 
     // Set up the paging directory.
 

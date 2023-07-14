@@ -85,8 +85,17 @@ static int process_map_memory(NuttleProcess* process) {
 
     // Check for other types of applications, such as ELF.
 
-    res = process_map_binary(process);
+    if(ISERR(res = process_map_binary(process))) 
+        goto out;
 
+    // Now map the stack.
+
+    void* start = process -> stack, 
+           *end = paging_align_addr(process -> stack + NUTTLE_USER_STACK_SIZE);
+
+    res = paging_map_to(process -> task -> chunk, (void*) NUTTLE_USER_STACK_VIRTUAL_ADDR_END, start, end, PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITABLE | PAGING_IS_PRESENT);
+
+out: 
     return res;
 }
 
@@ -108,9 +117,9 @@ static int process_load_to_slot(const char* filename, NuttleProcess** process, i
     
     // Set the program stack pointer.
 
-    _process -> program_stack_ptr = zmallock(NUTTLE_USER_STACK_SIZE);
+    _process -> stack = zmallock(NUTTLE_USER_STACK_SIZE);
 
-    if(ISERRP(_process -> program_stack_ptr)) {
+    if(ISERRP(_process -> stack)) {
         res = -ENOMEM;
 
         goto out;
@@ -205,8 +214,8 @@ void process_free(NuttleProcess* process) {
 
     // Free the program and stack.
 
-    if(process -> program_stack_ptr) 
-        freek(process -> program_stack_ptr);
+    if(process -> stack) 
+        freek(process -> stack);
 
     if(process -> ptr) 
         freek(process -> ptr);
@@ -220,5 +229,7 @@ out:
 }
 
 void process_switch(NuttleProcess* process) {
+    current = process;
+
     task_switch(process -> task);
 }

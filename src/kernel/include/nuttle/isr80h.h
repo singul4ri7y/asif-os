@@ -17,7 +17,7 @@ typedef struct __sruct_NuttleInterruptFrame {
 typedef void* (*ISRCommand)(NuttleInterruptFrame* frame);
 
 typedef enum __enum_ISR80hKernelCommands {
-    ISR80H_COMMAND0_SUM
+    ISR80H_COMMAND0_PRINT
 } ISR80hKernelCommand;
 
 void isr80h_init_kernel_commands();

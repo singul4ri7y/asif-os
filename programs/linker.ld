@@ -13,6 +13,15 @@ SECTIONS {
 
     . = 0x400000;
 
+    /**
+     * Put the assembly codes at the front of the output file, so that the asm files don't interfare
+     * between the C object code.
+     */
+
+    .asm : ALIGN(4K) {
+        *(.asm)
+    }
+
     /* Text section. */
 
     .text : ALIGN(4K) {
@@ -36,14 +45,5 @@ SECTIONS {
     .bss : ALIGN(4K) {
         *(COMMON)
         *(.bss)
-    }
-
-    /**
-     * Put the assembly codes at the end of the binary file, so that the asm files don't interfare
-     * between the C object code.
-     */
-
-    .asm : ALIGN(4K) {
-        *(.asm)
     }
 }
