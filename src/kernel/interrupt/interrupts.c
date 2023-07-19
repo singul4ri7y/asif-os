@@ -11,7 +11,7 @@
 extern void noint();
 
 void kbd_int_handler() {
-    putsk("Key pressed!!\n");
+    // putsk("Key pressed!!\n");
     acknowledge_int(0);
 }
 

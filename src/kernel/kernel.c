@@ -31,6 +31,14 @@ GDTEntryStructured gdt_entries_structured[NUTTLE_MAX_GDT_ENTRIES] = {
 
 static PagingChunk* kernel_paging_4gb_chunk = 0;
 
+static void kernel_print_ok(const char* msg) {
+    putsk("[ ");
+    putsck("OK", TTY_GREEN);
+    putsk(" ]: ");
+    putsk(msg);
+    putsk("\n");
+}
+
 void kernel_panic(const char* msg) {
     putsk(msg);
 
@@ -49,9 +57,14 @@ void kernel_page() {
 }
 
 void kernel_main() {
+
     // Intialize the Teletype Output screen.
 
     tty_init();
+    kernel_print_ok("Teletype text mode enabled, now ready to print text");
+
+    putsk("\nBooting ");
+    putsck("AsifOS v0.1.0 (alpha)\n\n", TTY_LIGHT_BLUE);
 
     // Initialize the GDT.
 
@@ -64,18 +77,22 @@ void kernel_main() {
     // Now load the GDT.
 
     gdt_load(gdt_entries, sizeof(gdt_entries));
+    kernel_print_ok("Kernel GDT initialized, now memory reading and execution is privilaged");
 
     // Initialize the heap.
 
     kheap_init();
+    kernel_print_ok("Kernel heap initialized, now ready to manage memory");
 
     // Initialze the filesystems.
 
     fs_init();
+    kernel_print_ok("Filesystem initialized, FAT16 is now ready to be used");
 
     // Initialize the Interrupt Descriptor Table.
 
     idt_init();
+    kernel_print_ok("IDT initialized, now ready to handle interrupt routines");
 
     // Initialize the TSS.
 
@@ -84,10 +101,12 @@ void kernel_main() {
     // Load the TSS.
 
     tss_load(0x28);
+    kernel_print_ok("TSS initialized, hardware level task-switching is now enabled");
 
     // Initialize the disks.
 
     disk_all_init();
+    kernel_print_ok("Primary disk drive mounted on disk '0:'");
 
     // Creating 4GB paging chunk.
 
@@ -100,6 +119,7 @@ void kernel_main() {
     // Now enable paging.
 
     enable_paging();
+    kernel_print_ok("Enabled and initialized kernel memory paging");
 
     // Initialize the Intel 8259A PIC.
 
@@ -108,6 +128,7 @@ void kernel_main() {
     // So our new hardware ISR should start from 0x20 (0x28 for slave).
 
     initialize_pic(0x20, 0x28);
+    kernel_print_ok("8259A PIC initialized, now ready to handle hardware level interrupts");
 
     // Now enable all the interrupts.
 
@@ -116,6 +137,9 @@ void kernel_main() {
     // Register all the kernel commands.
 
     isr80h_init_kernel_commands();
+    kernel_print_ok("Kernel commands initialized, now ready to handle user programs");
+
+    putsk("\n\n");
 
     // Create a process.
 

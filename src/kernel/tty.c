@@ -12,12 +12,12 @@ void tty_init() {
         tty_video_mem[i] = tty_make_char(' ', 0);
 }
 
-void tty_putc(char ch) {
+void tty_putc(char ch, TTYColor color) {
     if(ch == '\n') {
         tty_char_idx += VIDEO_COL - (tty_char_idx % VIDEO_COL);
 
         return;
     }
 
-    tty_video_mem[tty_char_idx++] = tty_make_char(ch, DEF_COLOR);
+    tty_video_mem[tty_char_idx++] = tty_make_char(ch, color);
 }

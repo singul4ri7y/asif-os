@@ -9,6 +9,7 @@
 #define SEEK_SET   FILE_SEEK_MODE_SET
 
 void putsk(const char* str);
+void putsck(const char* str, TTYColor color);
 
 // File manipulation specific functions.
 

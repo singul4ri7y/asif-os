@@ -4,7 +4,12 @@
 
 void putsk(const char* str) {
     while(*str) 
-        tty_putc(*str++);
+        tty_putc(*str++, TTY_WHITE);
+}
+
+void putsck(const char* str, TTYColor color) {
+    while(*str) 
+        tty_putc(*str++, color);
 }
 
 static FileMode fetch_mode(const char* mode) {
