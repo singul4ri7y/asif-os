@@ -132,7 +132,7 @@ out:
 static int paging_get_indices(void* virtual_address, uint32_t* directory_index, uint32_t* table_index, uint32_t* offset) {
     int res = NUTTLE_ALL_OK;
 
-    if(!validate_alignment(virtual_address)) {
+    if(virtual_address == nullptr) {
         res = -EINVARG;
 
         goto out;

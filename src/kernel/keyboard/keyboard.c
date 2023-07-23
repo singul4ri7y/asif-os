@@ -44,7 +44,7 @@ out:
 }
 
 void keyboard_init_buffer(NuttleKeyboardBuffer* buf) {
-    buf -> head = buf -> tail = 0;
+    buf -> head = buf -> tail = buf -> size = 0;
 }
 
 static int keyboard_get_circular(int n) {
@@ -62,22 +62,35 @@ static int keyboard_get_circular(int n) {
 int keyboard_push(char ch) {
     int res = NUTTLE_ALL_OK;
 
+    if(ch == 0x00) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
     // Current processes keyboard buffer.
 
     NuttleKeyboardBuffer* kbd_buf = &process_current() -> buffer;
 
-    // If the tail of the circular queue hits the head, suggests that the buffe is full.
+    // Check whether we can push to the queue.
 
-    int _tail = keyboard_get_circular(kbd_buf -> tail + 1);
-
-    if(_tail == kbd_buf -> head) {
+    if(kbd_buf -> size == NUTTLE_KEYBOARD_MAX_BUFFER) {
         res = -ENOMEM;
 
         goto out;
     }
 
-    kbd_buf -> buffer[_tail] = ch;
-    kbd_buf -> tail = _tail;
+    // Now fill the current slot pointed by tail.
+
+    kbd_buf -> buffer[kbd_buf -> tail] = ch;
+
+    // Now update the tail.
+
+    kbd_buf -> tail = keyboard_get_circular(kbd_buf -> tail + 1);
+
+    // Update the size.
+
+    kbd_buf -> size++;
 
 out:    
     return res;
@@ -90,11 +103,9 @@ int keyboard_backspace() {
 
     NuttleKeyboardBuffer* kbd_buf = &process_current() -> buffer;
     
-    // While backspacing we delete a character. If the tail of the buffer
-    // is already pointing to the same slot as the head, that means we 
-    // have no characters to backspace.
+    // Check whether we can backspace a character.
 
-    if(kbd_buf -> head == kbd_buf -> tail) {
+    if(kbd_buf -> size == 0) {
         res = -EEND;
 
         goto out;
@@ -113,16 +124,22 @@ char keyboard_pop() {
 
     NuttleKeyboardBuffer* kbd_buf = &task_get_current() -> process -> buffer;
 
-    // If the head and the tail points to the same slot, that means we have reached
-    // the end of the queue and we can no longer pop. In this case, return the 
-    // null/termination character.
+    // Check whether we can pop character from the queue.
 
-    if(kbd_buf -> head == kbd_buf -> tail) 
+    if(kbd_buf -> size == 0) 
         goto out;
+    
+    // Return the character we have in head.
 
     ch = kbd_buf -> buffer[kbd_buf -> head];
 
+    // Update the head.
+
     kbd_buf -> head = keyboard_get_circular(kbd_buf -> head + 1);
+
+    // Now update the size.
+
+    kbd_buf -> size--;
 
 out: 
     return ch;

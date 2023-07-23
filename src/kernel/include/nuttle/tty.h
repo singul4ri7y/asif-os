@@ -16,8 +16,6 @@ typedef enum __enum_TTYColor {
     TTY_BROWN      = 6
 } TTYColor;
 
-#define DEF_COLOR 9
-
 void tty_init();
 void tty_putc(char ch, TTYColor);
 void tty_clean();

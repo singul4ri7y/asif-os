@@ -57,11 +57,6 @@ void kernel_page() {
     paging_switch(kernel_paging_4gb_chunk);
 }
 
-void timer(NuttleInterruptFrame* frame) {
-    frame += 0;
-    putsk("Timer!!\n");
-}
-
 void kernel_main() {
 
     // Intialize the Teletype Output screen.
@@ -152,8 +147,6 @@ void kernel_main() {
 
 
     putsk("\n\n");
-
-    interrupt_register_callback(0x20, timer);
 
     // interrupt_register_callback(0x20, timer);
 

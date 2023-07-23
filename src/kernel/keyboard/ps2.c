@@ -1,9 +1,13 @@
+#include <nuttle/kernel.h>
 #include <nuttle/keyboard/keyboard.h>
+#include <nuttle/task/task.h>
 #include <nuttle/status.h>
 #include <nuttle/io.h>
+#include <nuttle/idt.h>
 #include <nuttle/error.h>
 
 static int ps2_init();
+static void ps2_keyboard_interrupt_handler();
 
 // Keyboard scan set. I am using the scan set one.
 
@@ -181,21 +185,45 @@ static int ps2_init() {
     if(ISERR(res = ps2_keyboard_reset())) 
         goto out;
 
-    // Finally enable the device scanning.
+    // Enable the device scanning.
 
     outb(PS2_DATA_PORT, PS2_KEYBOARD_ENABLE_SCANNING);
+
+    // Finally set the interrupt handler to handle the keyboard inputs.
+
+    interrupt_register_callback(PS2_KEYBOARD_IRQ, ps2_keyboard_interrupt_handler);
 
 out: 
     return res;
 }
 
-// static char ps2_keyboard_scancode_to_char(int scancode) {
-//     if(scancode >= scan_code_size) 
-//         return '\0';
+static char ps2_keyboard_scancode_to_char(int scancode) {
+    if(scancode >= scan_code_size) 
+        return '\0';
     
-//     return keyboard_scan_set[scancode];
-// }
+    return keyboard_scan_set[scancode];
+}
 
-// static void ps2_keyboard_interrupt_handler() {
+static void ps2_keyboard_interrupt_handler() {
+    kernel_page();
+
+    // Get the scancode.
+
+    uint8_t scancode = inb(PS2_DATA_PORT);
+
+    while(inb(PS2_STATUS_PORT) & 0x1) 
+        inb(PS2_DATA_PORT);
     
-// }
+    // Check if it was a release key event. This OS doesn't yet support key press or release
+    // event, it just supports input of raw characters.
+
+    if(scancode & PS2_KEYBOARD_SCANCODE_RELEASE) 
+        return;
+    
+    char ch = ps2_keyboard_scancode_to_char(scancode);
+
+    if(ch != 0) 
+        keyboard_push(ch);
+
+    task_page();
+}

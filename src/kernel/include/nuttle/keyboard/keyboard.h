@@ -5,11 +5,9 @@
 #include <nuttle/config.h>
 
 typedef int  (*KeyboardInitFn)();
-typedef void (*KeyboardPushFn)(char);
 
 struct __struct_NuttleKeyboard {
     KeyboardInitFn init;
-    KeyboardPushFn push;
     struct __struct_NuttleKeyboard* next;
     char name[30];
 };
@@ -21,6 +19,7 @@ struct __struct_NuttleKeyboard {
 typedef struct __struct_NuttleKeyboardBuffer {
     int head;
     int tail;
+    int size;
     char buffer[NUTTLE_KEYBOARD_MAX_BUFFER];
 } NuttleKeyboardBuffer;
 

@@ -2,6 +2,14 @@
 #include <nuttle/tty.h>
 #include <kernstr.h>
 
+void putck(char ch) {
+    tty_putc(ch, TTY_WHITE);
+}
+
+void putcck(char ch, TTYColor color) {
+    tty_putc(ch, color);
+}
+
 void putsk(const char* str) {
     while(*str) 
         tty_putc(*str++, TTY_WHITE);

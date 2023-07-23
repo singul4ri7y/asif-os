@@ -8,6 +8,8 @@
 #define SEEK_END   FILE_SEEK_MODE_END
 #define SEEK_SET   FILE_SEEK_MODE_SET
 
+void putck(char ch);
+void putcck(char ch, TTYColor color);
 void putsk(const char* str);
 void putsck(const char* str, TTYColor color);
 
