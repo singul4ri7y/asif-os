@@ -10,7 +10,7 @@
 
 section .bootstrap
 
-; Writing a kernel in Assembly language is kinda pain. So, I will the kernel
+; Writing a kernel in Assembly language is kinda pain. So, I will call the kernel
 ; C entry point function and start writing the whole kernel from there.
 
 extern kernel_main

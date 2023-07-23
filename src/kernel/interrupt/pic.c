@@ -3,17 +3,8 @@
 
 /**
  * Reinitialize the PIC controller and giving them specific control vector offset
- * of interrupt in IDT than BIOS default.
+ * of interrupt in IDT, then BIOS defaults.
 */
-
-// the Intel 8259A PIC is not the fastest chip to deal with.
-// So this function will be used to write to an unused port to delay
-// some time so that the PIC can process. Linux kernel does something 
-// similer.
-
-static void io_wait() {
-    outb(UNUSED_PORT, 0);
-}
 
 // Initilaizes the PIC with Intializaiton Command Words.
 

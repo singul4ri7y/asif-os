@@ -10,6 +10,7 @@
 #include <nuttle/config.h>
 #include <nuttle/task/tss.h>
 #include <nuttle/task/process.h>
+#include <nuttle/keyboard/keyboard.h>
 #include <kernio.h>
 #include <kernmem.h>
 
@@ -138,6 +139,12 @@ void kernel_main() {
 
     isr80h_init_kernel_commands();
     kernel_print_ok("Kernel commands initialized, now ready to handle user programs");
+
+    // Initialize all the keyboards.
+
+    keyboard_init();
+    kernel_print_ok("Keyboards initialized, now ready to take input");
+
 
     putsk("\n\n");
 

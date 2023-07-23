@@ -3,6 +3,7 @@
 
 #include <nuttle/config.h>
 #include <nuttle/task/task.h>
+#include <nuttle/keyboard/keyboard.h>
 #include <kernint.h>
 
 // A process is the kernel/operating system representation of an application/binary
@@ -38,6 +39,10 @@ struct __struct_NuttleProcess {
     // The size of the data pointed to by the 'ptr'.
 
     uint32_t size;
+
+    // Buffer for our keyboard.
+
+    NuttleKeyboardBuffer buffer;
 };
 
 int            process_load(const char* filename, NuttleProcess** process);

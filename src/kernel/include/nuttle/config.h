@@ -92,4 +92,8 @@
 
 #define NUTTLE_ISR80H_MAX_COMMANDS           8
 
+// The maximum number of characters a keyboard buffer can hold.
+
+#define NUTTLE_KEYBOARD_MAX_BUFFER          1024
+
 #endif    // __NUTTLE_CONFIG_H__

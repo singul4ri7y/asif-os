@@ -144,6 +144,10 @@ static int process_load_to_slot(const char* filename, NuttleProcess** process, i
     if(ISERR(res = process_map_memory(_process))) 
         return res;
     
+    // Initialize the keyboard buffer.
+
+    keyboard_init_buffer(&_process -> buffer);
+    
     // Now, as we are good to go, setup the process.
 
     *process = _process;
