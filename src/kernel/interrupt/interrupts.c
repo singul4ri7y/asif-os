@@ -16,12 +16,42 @@
 
 extern void* interrupt_wrapper_entry[NUTTLE_TOTAL_INTERRUPTS];
 
+static NuttleInterruptHandler interrupt_callbacks[NUTTLE_TOTAL_INTERRUPTS];
+
+int interrupt_register_callback(int index, NuttleInterruptHandler callback) {
+    int res = NUTTLE_ALL_OK;
+
+    if(callback == nullptr || index < 0 || index >= NUTTLE_TOTAL_INTERRUPTS) {
+        res = -EINVARG;
+
+        goto out;
+    }
+
+    interrupt_callbacks[index] = callback;
+
+out: 
+    return res;
+}
+
 void interrupt_handler(int int_no, NuttleInterruptFrame* frame) {
-    int_no += 0;
-    frame += 0;
+    kernel_page();
+
+    NuttleInterruptHandler callback = interrupt_callbacks[int_no];
+
+    if(callback != nullptr) {
+        task_store_frame((TaskRegisters*) frame);
+
+        callback(frame);
+    }
+
+    acknowledge_int(int_no);
+
+    task_page();
 }
 
 void interrupt_init() {
+    memsetk(interrupt_callbacks, 0x00, sizeof(interrupt_callbacks));
+
     // Fill the IDT with default no interrupt handler.
 
     // Trap gates are useful to handle software interrupts and interrupt gates are 

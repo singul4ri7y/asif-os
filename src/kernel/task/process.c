@@ -237,3 +237,15 @@ void process_switch(NuttleProcess* process) {
 
     task_switch(process -> task);
 }
+
+int process_load_and_switch(const char* filename, NuttleProcess** process) {
+    int res = process_load(filename, process);
+
+    if(ISERR(res)) 
+        goto out;
+    
+    process_switch(*process);
+
+out: 
+    return res;
+}

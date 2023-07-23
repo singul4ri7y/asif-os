@@ -177,7 +177,7 @@ start_protected_mode:
     ; Load kernel from disk.
 
     mov eax, 1             ; Read the second sector (0 based indexing).
-    mov ecx, 100           ; Number of sectors to read.
+    mov ecx, 200           ; Number of sectors to read.
 
     ; The first contiguous unbounded memory starts after 1MB, from hex 0x00100000. So, we are gonna load our kernel there.
 

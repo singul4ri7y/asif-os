@@ -57,7 +57,8 @@ void kernel_page() {
     paging_switch(kernel_paging_4gb_chunk);
 }
 
-void timer() {
+void timer(NuttleInterruptFrame* frame) {
+    frame += 0;
     putsk("Timer!!\n");
 }
 
@@ -152,17 +153,17 @@ void kernel_main() {
 
     putsk("\n\n");
 
+    interrupt_register_callback(0x20, timer);
+
     // interrupt_register_callback(0x20, timer);
 
     // Create a process.
 
     NuttleProcess* process;
 
-    if(ISERR(process_load("0:/BLANK.BIN", &process))) {
+    if(ISERR(process_load_and_switch("0:/BLANK.BIN", &process))) {
         kernel_panic("Could not load program: BLANK.BIN\n");
     }
-
-    process_switch(process);
 
     task_run();
 

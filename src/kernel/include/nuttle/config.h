@@ -1,7 +1,9 @@
 #ifndef __NUTTLE_CONFIG_H__
 #define __NUTTLE_CONFIG_H__
 
-#define NUTTLE_TOTAL_INTERRUPTS       512
+// Total number of interrupts supported by Nuttle.
+
+#define NUTTLE_TOTAL_INTERRUPTS              512
 
 // In my bootloader, I have specified my Kernel Code Segment Selector as 0x08.
 // Also in the C implementation of the GDT.

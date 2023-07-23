@@ -47,5 +47,6 @@ extern void idt_load_descriptor(const IDTDescriptor*);
 void idt_init();
 void idt_add_entry(int interrupt_no, NuttleGateType type, void* address);
 void interrupt_init();
+int interrupt_register_callback(int index, NuttleInterruptHandler callback);
 
 #endif    // __NUTTLE_IDT_H__

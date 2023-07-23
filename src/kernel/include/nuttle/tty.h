@@ -20,5 +20,6 @@ typedef enum __enum_TTYColor {
 
 void tty_init();
 void tty_putc(char ch, TTYColor);
+void tty_clean();
 
 #endif    // __NUTTLE_TTY_H__

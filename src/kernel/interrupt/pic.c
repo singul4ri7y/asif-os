@@ -75,11 +75,13 @@ void initialize_pic(uint8_t master_offset, uint8_t slave_offset) {
 // Acknowledge interrupt.
 
 void acknowledge_int(uint8_t int_no) {
-    // If the IRQ is from slave PIC, both master and slave PIC
-    // has to be acknowledged.
+    if(int_no > 0x1f && int_no < 0x30) {
+        // If the IRQ is from slave PIC, both master and slave PIC
+        // has to be acknowledged.
 
-    if(int_no > 7) 
-        outb(PICS_COMMAND_PORT, 0x20);
-    
-    outb(PICM_COMMAND_PORT, 0x20);
+        if(int_no > 0x27) 
+            outb(PICS_COMMAND_PORT, 0x20);    // Acknowledge the Slave PIC.
+        
+        outb(PICM_COMMAND_PORT, 0x20);    // Ackknowledge the Master PIC.
+    }
 }

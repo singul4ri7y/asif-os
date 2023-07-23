@@ -50,5 +50,6 @@ NuttleProcess* process_get(int pid);
 NuttleProcess* process_current();
 void           process_free(NuttleProcess* process);
 void           process_switch(NuttleProcess* process);
+int            process_load_and_switch(const char* filename, NuttleProcess** process);
 
 #endif    // __NUTTLE_PROCESS_H__
