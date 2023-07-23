@@ -1,18 +1,8 @@
 #ifndef __NUTTLE_ISR80H__
 #define __NUTTLE_ISR80H__
 
+#include <nuttle/idt.h>
 #include <kernint.h>
-
-typedef struct __sruct_NuttleInterruptFrame {
-    uint32_t edi;
-    uint32_t esi;
-    uint32_t ebp;
-    uint32_t esp;
-    uint32_t ebx;
-    uint32_t edx;
-    uint32_t ecx;
-    uint32_t eax;
-} __attribute__((packed)) NuttleInterruptFrame;
 
 typedef void* (*ISRCommand)(NuttleInterruptFrame* frame);
 

@@ -1,14 +1,8 @@
 section .asm
     global idt_load_descriptor
-    global noint
-    global kbd_int
-    global general_protection_fault
-    global paging_fault
+    global interrupt_wrapper_entry
 
-extern kbd_int_handler
-extern noint_handler
-extern general_protection_fault_handler
-extern paging_fault_handler
+extern interrupt_handler
 
 idt_load_descriptor: 
     push ebp
@@ -20,34 +14,61 @@ idt_load_descriptor:
     pop ebp
     ret
 
-; This function corresponds to no interrupt.
+; A simple macro which will be used to create every single assembly routine 
+; to handle interrupts.
 
-noint: 
-    pushad
-    call noint_handler
-    popad
-    iret
+%macro interrupt 1
+    global int%1_wrapper
 
-kbd_int: 
-    pushad
+    int%1_wrapper: 
+        ; Push all the general purpose registers.
+        ; Which will be later used to pass interrupt frame to the handler.
 
-    call kbd_int_handler
+        pushad
 
-    popad
-    iret
+        ; The stack pointer is pointing to the very last register pushed by the previous
+        ; instruction, which is at the very top of the stack.
 
-general_protection_fault: 
-    pushad 
+        push esp
 
-    call general_protection_fault_handler
+        ; Now push the interrupt number.
 
-    popad
-    iret
+        push dword %1
 
-paging_fault: 
-    pushad
+        ; Now call the interrupt handler.
 
-    call paging_fault_handler
+        call interrupt_handler
 
-    popad
-    iret
+        add esp, 8
+
+        ; Pop all the gneeral purpose registers.
+
+        popad
+
+        iret
+
+%endmacro
+
+; Now create all the assembly interrupt handler subroutine.
+
+%assign i 0
+
+%rep 512
+    interrupt i
+    %assign i i + 1
+%endrep
+
+section .rodata
+
+%macro interrupt_entry 1
+    dd int%1_wrapper
+%endmacro
+
+interrupt_wrapper_entry: 
+
+%assign i 0
+%rep 512
+    interrupt_entry i
+
+    %assign i i + 1
+%endrep

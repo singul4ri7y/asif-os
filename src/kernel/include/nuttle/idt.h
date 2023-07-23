@@ -26,6 +26,22 @@ typedef struct __struct_IDTDescriptor {
     IDTEntry* table;    // The address to the table.
 } __attribute__((packed)) IDTDescriptor;
 
+// The interrupt frame holding data regarding the registers
+// when the interrupt has been called.
+
+typedef struct __sruct_NuttleInterruptFrame {
+    uint32_t edi;
+    uint32_t esi;
+    uint32_t ebp;
+    uint32_t esp;
+    uint32_t ebx;
+    uint32_t edx;
+    uint32_t ecx;
+    uint32_t eax;
+} __attribute__((packed)) NuttleInterruptFrame;
+
+typedef void (*NuttleInterruptHandler)(NuttleInterruptFrame* frame);
+
 extern void idt_load_descriptor(const IDTDescriptor*);
 
 void idt_init();

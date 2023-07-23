@@ -169,7 +169,7 @@ static int ps2_init() {
 
     if(b1 != 0xab || 
     (b2 != 0x85 && b2 != 0x86 && b2 != 0x41 && 
-    b2 != 0xc1 && b2 != 0x54)) {
+     b2 != 0xc1 && b2 != 0x54)) {
         res = -EIO;
 
         goto out;

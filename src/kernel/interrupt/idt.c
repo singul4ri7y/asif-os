@@ -2,7 +2,7 @@
 #include <nuttle/config.h>
 #include <kernmem.h>
 
-static IDTEntry idt[NUTTLE_CONFIG_TOTAL_INTERRUPTS];
+static IDTEntry idt[NUTTLE_TOTAL_INTERRUPTS];
 static IDTDescriptor idt_desc;
 
 void idt_init() {
