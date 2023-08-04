@@ -56,6 +56,8 @@ static int fat16_get_root_directory(NuttleDisk* disk, NuttleFATPrivate* fat_priv
     
     NuttleFATItem item;
 
+    NuttleDiskStream* stream = diskstream_new(disk -> id);
+
     item.directory = (NuttleFATDirectory*) mallock(root_directory_size);
 
     if(!item.directory) {
@@ -63,8 +65,6 @@ static int fat16_get_root_directory(NuttleDisk* disk, NuttleFATPrivate* fat_priv
 
         goto out;
     }
-
-    NuttleDiskStream* stream = diskstream_new(disk -> id);
 
     // Seek to the absolute position where the root directory resides.
 
@@ -532,14 +532,14 @@ out:
 
 void* fat16_open(NuttleDisk* disk, PathPart* part, FileMode mode) {
     int res = 0;
+    
+    NuttleFATFileDescriptor* desc = mallock(sizeof(NuttleFATFileDescriptor));
 
     if(mode & FILE_MODE_APPEND || mode & FILE_MODE_WRITE) {
         res = -ERDONLY;
 
         goto out;
     }
-    
-    NuttleFATFileDescriptor* desc = mallock(sizeof(NuttleFATFileDescriptor));
 
     if(!desc) {
         res = -ENOMEM;

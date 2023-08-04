@@ -127,7 +127,7 @@ int file_open(const char* filename, FileMode mode) {
         goto out;
     }
 
-    NuttleFileDescriptor* desc;
+    NuttleFileDescriptor* desc = nullptr;
 
     file_new_descriptor(&desc);
 

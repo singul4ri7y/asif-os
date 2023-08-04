@@ -29,8 +29,15 @@ static void* isr80h_command2_putchar(NuttleInterruptFrame* frame) {
     return nullptr;
 }
 
+static void* isr80h_command3_rmchar() {
+    tty_rmc();
+
+    return nullptr;
+}
+
 void isr80h_define_commands() {
     isr80h_register_command(ISR80H_COMMAND0_PRINT, isr80h_command0_print);
     isr80h_register_command(ISR80H_COMMAND1_GETKEY, (ISRCommand) isr80h_command1_getkey);
     isr80h_register_command(ISR80H_COMMAND2_PUTCHAR, isr80h_command2_putchar);
+    isr80h_register_command(ISR80H_COMMAND3_RMCHAR, (ISRCommand) isr80h_command3_rmchar);
 }

@@ -11,10 +11,27 @@ _start:
     mov esi, type
     int 0x80
 
+    xor ecx, ecx
+    
 .loop: 
     call getkey
-    mov esi, eax
+    cmp eax, 0x08
+    jne .continue
+
+    cmp ecx, 0
+    je .loop
     
+    dec ecx
+    
+    mov eax, 3
+    int 0x80
+    jmp .loop
+
+.continue: 
+    inc ecx
+
+    mov esi, eax
+
     mov eax, 2
     int 0x80
     jmp .loop

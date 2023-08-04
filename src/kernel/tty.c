@@ -31,3 +31,12 @@ void tty_putc(char ch, TTYColor color) {
 
     tty_video_mem[tty_char_idx++] = tty_make_char(ch, color);
 }
+
+void tty_rmc() {
+    if(tty_char_idx == 0) 
+        return;
+    
+    tty_char_idx--;
+
+    tty_video_mem[tty_char_idx] = tty_make_char(' ', 0);
+}
