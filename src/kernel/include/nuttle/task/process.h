@@ -6,6 +6,11 @@
 #include <nuttle/keyboard/keyboard.h>
 #include <kernint.h>
 
+typedef enum __enum_ProcessProgramType {
+    PROCESS_PROGRAM_TYPE_BINARY,
+    PROCESS_PROGRAM_TYPE_ELF
+} ProcessProgramType;
+
 // A process is the kernel/operating system representation of an application/binary
 // instance in the memory.
 
@@ -28,7 +33,12 @@ struct __struct_NuttleProcess {
 
     void* allocations[NUTTLE_MAX_USER_ALLOCATIONS];
 
-    // Physical address to the application program code. I am using raw binary for now.
+    // The type of program loaded by the process.
+
+    ProcessProgramType type;
+
+    // Physical address to the application program code. Will point to a raw bianry if it's loaded as a 
+    // raw binary, or else to the NuttleELFFile structure.
 
     void* ptr;
 

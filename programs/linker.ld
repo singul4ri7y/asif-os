@@ -4,7 +4,7 @@ ENTRY(_start)
 
 /* Output foramt. */
 
-OUTPUT_FORMAT(binary)
+OUTPUT_FORMAT(elf32-i386)
 
 /* Sections. */
 

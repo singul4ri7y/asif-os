@@ -41,6 +41,8 @@ static void kernel_print_ok(const char* msg) {
 }
 
 void kernel_panic(const char* msg) {
+    putsck("Kernel panic : ", TTY_RED);
+
     putsk(msg);
 
     // Now halt the kernel.
@@ -148,14 +150,12 @@ void kernel_main() {
 
     putsk("\n\n");
 
-    // interrupt_register_callback(0x20, timer);
-
     // Create a process.
 
     NuttleProcess* process;
 
-    if(ISERR(process_load_and_switch("0:/BLANK.BIN", &process))) {
-        kernel_panic("Could not load program: BLANK.BIN\n");
+    if(ISERR(process_load_and_switch("0:/BLANK.ELF", &process))) {
+        kernel_panic("Could not load program: BLANK.ELF\n");
     }
 
     task_run();

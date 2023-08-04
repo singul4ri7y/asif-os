@@ -14,5 +14,6 @@
 #define ENOTASK          10        // No current task.
 #define ETAKEN           11        // An entry is taken.
 #define EEND             12        // End of any buffer or cannot progress further into the buffer.
+#define EINVFORMAT       13        // Invalid format.
 
 #endif    // __NUTTLE_STATUS_H__

@@ -11,6 +11,7 @@
 typedef enum __enum_TTYColor {
     TTY_BLUE       = 1,
     TTY_GREEN      = 2,
+    TTY_RED        = 4, 
     TTY_LIGHT_BLUE = 9,
     TTY_WHITE      = 15,
     TTY_BROWN      = 6

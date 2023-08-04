@@ -7,7 +7,7 @@ OUT := $(patsubst src/%.asm, ../bin/blank/%.asm.obj, $(SRC))
 .SILENT: 
 
 all: $(OUT)
-	i386-elf-gcc -g -T ../linker.ld -o ../bin/blank.bin -ffreestanding -nostdlib -O0 -fpic $<
+	i386-elf-gcc -g -T ../linker.ld -o ../bin/blank.elf -ffreestanding -nostdlib -O0 -fpic $<
 	
 
 ../bin/blank/%.asm.obj : src/%.asm

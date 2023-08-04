@@ -4,7 +4,7 @@
 #include <nuttle/keyboard/ps2.h>
 #include <nuttle/config.h>
 
-typedef int  (*KeyboardInitFn)();
+typedef int (*KeyboardInitFn)();
 
 struct __struct_NuttleKeyboard {
     KeyboardInitFn init;

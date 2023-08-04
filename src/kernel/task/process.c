@@ -1,6 +1,8 @@
+#include <nuttle/kernel.h>
 #include <nuttle/task/process.h>
 #include <nuttle/config.h>
 #include <nuttle/status.h>
+#include <nuttle/elf/loader.h>
 #include <nuttle/error.h>
 #include <kerndef.h>
 #include <kernmem.h>
@@ -49,6 +51,10 @@ static int process_load_binary(const char* filename, NuttleProcess* process) {
 
     process -> ptr  = bin;
     process -> size = stat.file_size;
+    
+    // Set the process type.
+
+    process -> type = PROCESS_PROGRAM_TYPE_BINARY;
 
 out: 
     fclosek(file);
@@ -56,14 +62,37 @@ out:
     return res;
 }
 
-static int process_fill_data(const char* filename, NuttleProcess* process) {
+static int process_load_elf(const char* filename, NuttleProcess* process) {
     int res = NUTTLE_ALL_OK;
+
+    NuttleELFFile* elf_file = nullptr;
+
+    if(ISERR(res = elf_load(filename, &elf_file))) 
+        goto out;
+
+    process -> ptr  = elf_file;
+    process -> size = elf_file -> in_memory_size;
+
+    // Set the process type.
+
+    process -> type = PROCESS_PROGRAM_TYPE_ELF;
+    
+out: 
+    return res;
+}
+
+static int process_fill_data(const char* filename, NuttleProcess* process) {
+    int res = process_load_elf(filename, process);
+
+    if(res == NUTTLE_ALL_OK) 
+        goto loaded;
 
     // Check for binary types.
 
     if(ISERR(res = process_load_binary(filename, process))) 
         goto out;
 
+loaded: 
     // Set the filename.
 
     strcpyk(process -> filename, filename);
@@ -80,13 +109,57 @@ static int process_map_binary(NuttleProcess* process) {
         PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITABLE);
 }
 
+static int process_map_elf(NuttleProcess* process) {
+    int res = NUTTLE_ALL_OK;
+
+    NuttleELFFile* elf_file = (NuttleELFFile*) process -> ptr;
+
+    // Now map all the program headers.
+
+    for(int i = 0; i < elf_file -> pheader_size; i++) {
+        NuttleELF32ProgramHeader* pheader = elf_file -> pheaders[i];
+
+        // The physical address the program header is been mapped to 
+        // has already been set while loading the elf binary.
+
+        PageFlags flags = PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL;
+
+        if(pheader -> p_flags & PF_W) 
+            flags |= PAGING_IS_WRITABLE;
+        
+        // In ELF binary types, it is ensured that all the virtual and physical address will be 
+        // 4KB aligned.
+
+        void* start = (void*) pheader -> p_paddr,
+               *end = paging_align_addr((void*) pheader -> p_paddr + pheader -> p_memsiz);
+
+        if(ISERR(res = paging_map_to(process -> task -> chunk, (void*) pheader -> p_vaddr, start, end, flags))) 
+            goto out;
+    }
+
+out: 
+    return res;
+}
+
 static int process_map_memory(NuttleProcess* process) {
     int res = NUTTLE_ALL_OK;
 
-    // Check for other types of applications, such as ELF.
-
-    if(ISERR(res = process_map_binary(process))) 
-        goto out;
+    switch(process -> type) {
+        case PROCESS_PROGRAM_TYPE_ELF: 
+            if(ISERR(res = process_map_elf(process)))
+                goto out;
+            
+            break;
+        
+        case PROCESS_PROGRAM_TYPE_BINARY: 
+            if(ISERR(res = process_map_binary(process))) 
+                goto out;
+            
+            break;
+        
+        default: 
+            kernel_panic("process_map_memory(): Invalid process type!");
+    }
 
     // Now map the stack.
 
