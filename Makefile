@@ -53,7 +53,7 @@ all: create bootloader kernel programz
 
 	# Now push all the programs to the filesystem.
 
-	mcopy -i $(OUTPUT_DIR)/os.img $(PROGRAM_DIR)/blank.bin "::blank.bin"
+	mcopy -i $(OUTPUT_DIR)/os.img $(PROGRAM_DIR)/blank.elf "::blank.elf"
 
 	echo "Successfully created $(OUTPUT_DIR)/os.img"
 
