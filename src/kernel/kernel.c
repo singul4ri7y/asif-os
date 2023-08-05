@@ -155,7 +155,7 @@ void kernel_main() {
     NuttleProcess* process;
 
     if(ISERR(process_load_and_switch("0:/BLANK.ELF", &process))) {
-        kernel_panic("Could not load program: BLANK.ELF\n");
+        kernel_panic("Could not load program BLANK.ELF\n");
     }
 
     task_run();

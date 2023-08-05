@@ -1,16 +1,28 @@
 ASM := nasm
+CC  := i386-elf-gcc
 
-SRC := $(wildcard src/*.asm)
-OUT := $(patsubst src/%.asm, ../bin/blank/%.asm.obj, $(SRC))
+FLAGS      := -g -ffreestanding -falign-jumps -falign-labels -falign-loops -falign-functions -fomit-frame-pointer -finline-functions -fno-builtin -Wcpp -Wunused -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -O0
+COMP_FALGS := $(KERN_FLAGS) -MMD -MF
+
+SRC_DIR    := src
+OUTPUT_DIR := ../bin/blank
+DEPS_DIR   := ../bin/deps
+
+SRC_FILES    := $(wildcard $(SRC_DIR)/*.c)
+OBJECT_FILES := $(patsubst $(SRC_DIR)/%.c, $(OUTPUT_DIR)/%.c.obj, $(SRC_FILES))
+
+INCLUDES := 
 
 .PHONY:
 .SILENT: 
 
-all: $(OUT)
-	i386-elf-gcc -g -T ../linker.ld -o ../bin/blank.elf -ffreestanding -nostdlib -O0 -fpic $<
-	
+all: $(OBJECT_FILES)
+	i386-elf-gcc -T ../linker.ld -o $(FLAGS) $< ../bin/_start.elf.link ../bin/stdlib.elf.link -o ../bin/blank.elf
 
-../bin/blank/%.asm.obj : src/%.asm
+$(OUTPUT_DIR)/%.c.obj : $(SRC_DIR)/%.c
 	mkdir -p $(dir $@)
-	echo "Blank : Compiling ASM translation '$(patsubst $(SRC_DIR)/kernel/%.asm,%.asm, $<)', generating object '$@'..."
-	$(ASM) -f elf32 -g $< -o $@
+	echo "BLANK : Compiling C translation '$(notdir $<)', generating object '$@'..."
+	
+	$(CC) -c $(INCLUDES) $(COMP_FALGS) $(patsubst %.c.obj, $(DEPS_DIR)/%.d, $(notdir $@)) $< -o $@
+
+-include $(wildcard $(DEPS_DIR)/*.d)

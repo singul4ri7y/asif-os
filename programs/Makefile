@@ -2,6 +2,10 @@
 .SILENT: 
 
 all: 
+	mkdir -p ./bin/deps/
+
+	$(MAKE) -s -C stdlib
+	$(MAKE) -s -C _start
 	$(MAKE) -s -C blank
 
 clean: 
