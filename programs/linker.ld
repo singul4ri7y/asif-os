@@ -13,10 +13,15 @@ SECTIONS {
 
     . = 0x400000;
 
-    /**
-     * Put the assembly codes at the front of the output file, so that the asm files don't interfare
-     * between the C object code.
+    /** 
+     * Set all the bootstrap assembly code at the beginning.
      */
+
+    .bootstrap_asm : ALIGN(4K) {
+        *(.bootstrap_asm)
+    }
+
+    /* Regular assembly section. */
 
     .asm : ALIGN(4K) {
         *(.asm)

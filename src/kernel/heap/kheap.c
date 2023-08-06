@@ -16,7 +16,7 @@ void kheap_init() {
     // We will start our heap from 0x1000000, which is the next chunk of free memory
     // after 0x100000.
 
-    void* start = (void*) 0x1000000, *end = start + NUTTLE_HEAP_SIZE_IN_BYTES;
+    void* start = (void*) NUTTLE_KERNEL_HEAP_START, *end = start + NUTTLE_HEAP_SIZE_IN_BYTES;
 
     int result = heap_create(&heap, start, end, &heap_table);
 

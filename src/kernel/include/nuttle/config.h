@@ -28,6 +28,10 @@
 
 #define NUTTLE_USER_DATA_SEGMENT_SELECTOR   0x20
 
+// Physical start address of the kernel heap.
+
+#define NUTTLE_KERNEL_HEAP_START            0x1000000
+
 // I am gonna have a static 100MB heap.
 
 #define NUTTLE_HEAP_SIZE_IN_BYTES            104857600
@@ -97,5 +101,9 @@
 // The maximum number of characters a keyboard buffer can hold.
 
 #define NUTTLE_KEYBOARD_MAX_BUFFER          1024
+
+// The virtual start address of the user heap allocations.
+
+#define NUTTLE_USER_HEAP_VIRT_ADDR           0xffe000
 
 #endif    // __NUTTLE_CONFIG_H__

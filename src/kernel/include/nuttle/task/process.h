@@ -5,11 +5,17 @@
 #include <nuttle/task/task.h>
 #include <nuttle/keyboard/keyboard.h>
 #include <kernint.h>
+#include <kerndef.h>
 
 typedef enum __enum_ProcessProgramType {
     PROCESS_PROGRAM_TYPE_BINARY,
     PROCESS_PROGRAM_TYPE_ELF
 } ProcessProgramType;
+
+typedef struct __struct_ProcessAllocationEntry {
+    void* addr;
+    int pages;
+} ProcessAllocationEntry;
 
 // A process is the kernel/operating system representation of an application/binary
 // instance in the memory.
@@ -31,7 +37,7 @@ struct __struct_NuttleProcess {
     // so that if the user program forgets to free the memory, the kernel
     // can handle it to prevent memory leaking.
 
-    void* allocations[NUTTLE_MAX_USER_ALLOCATIONS];
+    ProcessAllocationEntry allocations[NUTTLE_MAX_USER_ALLOCATIONS];
 
     // The type of program loaded by the process.
 
@@ -61,5 +67,7 @@ NuttleProcess* process_current();
 void           process_free(NuttleProcess* process);
 void           process_switch(NuttleProcess* process);
 int            process_load_and_switch(const char* filename, NuttleProcess** process);
+void*          process_alloc_malloc(NuttleProcess* process, size_t size);
+void           process_alloc_free(NuttleProcess* process, void* virt_addr);
 
 #endif    // __NUTTLE_PROCESS_H__

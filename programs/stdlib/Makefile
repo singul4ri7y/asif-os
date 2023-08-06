@@ -13,7 +13,7 @@ SRC_FILES_ASM    := $(wildcard $(SRC_DIR)/*.asm)
 OBJECT_FILES_C   := $(patsubst $(SRC_DIR)/%.c, $(OUTPUT_DIR)/%.c.obj, $(SRC_FILES_C))
 OBJECT_FILES_ASM := $(patsubst $(SRC_DIR)/%.asm, $(OUTPUT_DIR)/%.asm.obj, $(SRC_FILES_ASM))
 
-INCLUDES := 
+INCLUDES := -Iinclude/
 
 .PHONY:
 .SILENT: 

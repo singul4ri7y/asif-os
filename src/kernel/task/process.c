@@ -4,7 +4,6 @@
 #include <nuttle/status.h>
 #include <nuttle/elf/loader.h>
 #include <nuttle/error.h>
-#include <kerndef.h>
 #include <kernmem.h>
 #include <kernio.h>
 #include <kernstr.h>
@@ -321,4 +320,99 @@ int process_load_and_switch(const char* filename, NuttleProcess** process) {
 
 out: 
     return res;
+}
+
+static int process_get_free_allocation_slot(NuttleProcess* process) {
+    int res = -ENOMEM;
+
+    for(int i = 0; i < NUTTLE_MAX_USER_ALLOCATIONS; i++) {
+        if(process -> allocations[i].addr == 0) {
+            res = i;
+
+            goto out;
+        }
+    }
+
+out: 
+    return res;
+}
+
+static int process_find_allocation_slot(NuttleProcess* process, void* virt) {
+    int res = -EINVARG;
+
+    for(int i = 0; i < NUTTLE_MAX_USER_ALLOCATIONS; i++) {
+        if(process -> allocations[i].addr == virt) {
+            res = i;
+
+            goto out;
+        }
+    }
+
+out: 
+    return res;
+}
+
+static int process_calculate_pages(size_t size) {
+    int res = size / PAGING_SIZE;
+
+    if(size % PAGING_SIZE) 
+        res++;
+
+    return res; 
+}
+
+void* process_alloc_malloc(NuttleProcess* process, size_t size) {
+    void* ptr = nullptr;
+
+    // First see that the process can allocate more memory, in other words
+    // there is a free spot in the allocation table if the process.
+
+    int slot = process_get_free_allocation_slot(process);
+
+    if(slot < 0) 
+        goto out;
+    
+    ptr = mallock(size);
+
+    if(ISERRP(ptr)) 
+        goto out;
+
+    void* heap_virt = (void*) NUTTLE_USER_HEAP_VIRT_ADDR + ((uint32_t) ptr - NUTTLE_KERNEL_HEAP_START);
+
+    // Now map the allocated heap memory to process page.
+
+    paging_map_to(process -> task -> chunk, heap_virt, ptr, paging_align_addr(ptr + size), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITABLE);
+
+    // Now set and return the virtual address.
+
+    ptr = heap_virt;
+
+    // Add it to the allocation table.
+
+    process -> allocations[slot].addr  = ptr;
+    process -> allocations[slot].pages = process_calculate_pages(size);
+
+out: 
+    return ptr;
+}
+
+void process_alloc_free(NuttleProcess* process, void* virt_addr) {
+    // Check whether the memory was initially created by the process.
+
+    int slot = process_find_allocation_slot(process, virt_addr);
+
+    if(slot < 0) 
+        return;
+
+    // Now get the physical address of the memory and free the memory.
+
+    freek(paging_get_physical_addr(process -> task -> chunk, virt_addr));
+    
+    // Now remove mapping of the heap allocated memory.
+
+    paging_map_to(process -> task -> chunk, virt_addr, virt_addr, virt_addr + process -> allocations[slot].pages * PAGING_SIZE, PAGING_IS_PRESENT | PAGING_IS_WRITABLE);
+
+    // Update the allocation table.
+
+    process -> allocations[slot].addr = 0x0;
 }

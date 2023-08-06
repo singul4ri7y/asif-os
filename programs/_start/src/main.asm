@@ -3,7 +3,7 @@
 global _start
 extern main
 
-section .asm
+section .bootstrap_asm
 
 _start: 
     call main
