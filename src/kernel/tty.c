@@ -16,6 +16,10 @@ void tty_init() {
     tty_clean();
 }
 
+void tty_reset() {
+    tty_char_idx = 0;
+}
+
 void tty_putc(char ch, TTYColor color) {
     if(tty_char_idx == VIDEO_SIZ) {
         tty_clean();

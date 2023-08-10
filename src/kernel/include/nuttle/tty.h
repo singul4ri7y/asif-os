@@ -14,12 +14,14 @@ typedef enum __enum_TTYColor {
     TTY_RED        = 4, 
     TTY_LIGHT_BLUE = 9,
     TTY_WHITE      = 15,
-    TTY_BROWN      = 6
+    TTY_BROWN      = 6,
+    TTY_CYAN       = 3
 } TTYColor;
 
 void tty_init();
 void tty_putc(char ch, TTYColor);
 void tty_clean();
 void tty_rmc();
+void tty_reset();
 
 #endif    // __NUTTLE_TTY_H__

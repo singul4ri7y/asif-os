@@ -53,6 +53,20 @@ static void* isr80h_command5_free(NuttleInterruptFrame* frame) {
 static void* isr80h_command6_clear() {
     tty_clean();
 
+    // Reset the buffer index.
+
+    tty_reset();
+
+    return nullptr;
+}
+
+static void* isr80h_command7_putcharc(NuttleInterruptFrame* frame) {
+    char ch = (char) frame -> esi;
+
+    TTYColor color = (TTYColor) frame -> edi;
+
+    tty_putc(ch, color);
+
     return nullptr;
 }
 
@@ -64,4 +78,5 @@ void isr80h_define_commands() {
     isr80h_register_command(ISR80H_COMMAND4_MALLOC, isr80h_command4_malloc);
     isr80h_register_command(ISR80H_COMMAND5_FREE, isr80h_command5_free);
     isr80h_register_command(ISR80H_COMMAND6_CLEAR, (ISRCommand) isr80h_command6_clear);
+    isr80h_register_command(ISR80H_COMMAND7_PUTCHARC, isr80h_command7_putcharc);
 }

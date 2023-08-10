@@ -114,3 +114,23 @@ asifos_clear:
     pop eax
     pop ebp
     ret
+
+global asifos_putcharc:function
+
+asifos_putcharc: 
+    push ebp
+    push eax
+    push esi
+    push edi
+    mov ebp, esp
+
+    mov eax, 7
+    mov esi, [ebp + 20]
+    mov edi, [ebp + 24]
+    int 0x80
+
+    pop edi
+    pop esi
+    pop eax
+    pop ebp
+    ret

@@ -10,12 +10,17 @@ void asifos_terminal_readline(char* buf, int max, int output_while_typing) {
 
         if(ch == 13) 
             break;
-        else if(ch == 8 && i > 0) {
-            // I will be +1 when we continue.
+        
+        // Handling Backspace.
 
-            i -= 2;
+        if(ch == 8) {
+            if(i > 0) {
+                // It will be +1 when we continue.
 
-            asifos_rmchar();
+                i -= 2;
+
+                asifos_rmchar();
+            } else i -= 1;
 
             continue;
         }
@@ -27,4 +32,9 @@ void asifos_terminal_readline(char* buf, int max, int output_while_typing) {
     }
 
     buf[i] = '\0';
+}
+
+void asifos_printc(const char* str, TermColor color) {
+    while(*str) 
+        asifos_putcharc(*str++, color);
 }
