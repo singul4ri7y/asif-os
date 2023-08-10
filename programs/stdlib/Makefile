@@ -1,8 +1,8 @@
 ASM := nasm
 CC  := i386-elf-gcc
 
-FLAGS      := -g -ffreestanding -falign-jumps -falign-labels -falign-loops -falign-functions -fomit-frame-pointer -finline-functions -fno-builtin -Wcpp -Wunused -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -O0
-COMP_FALGS := $(KERN_FLAGS) -MMD -MF
+FLAGS      := -g -ffreestanding -falign-jumps -falign-labels -falign-loops -fomit-frame-pointer -falign-functions -finline-functions -fno-builtin -Wcpp -Wunused -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -O0
+COMP_FALGS := $(FLAGS) -MMD -MF
 
 SRC_DIR    := src
 OUTPUT_DIR := ../bin/stdlib

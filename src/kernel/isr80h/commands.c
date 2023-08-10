@@ -50,6 +50,12 @@ static void* isr80h_command5_free(NuttleInterruptFrame* frame) {
     return nullptr;
 }
 
+static void* isr80h_command6_clear() {
+    tty_clean();
+
+    return nullptr;
+}
+
 void isr80h_define_commands() {
     isr80h_register_command(ISR80H_COMMAND0_PRINT, isr80h_command0_print);
     isr80h_register_command(ISR80H_COMMAND1_GETKEY, (ISRCommand) isr80h_command1_getkey);
@@ -57,4 +63,5 @@ void isr80h_define_commands() {
     isr80h_register_command(ISR80H_COMMAND3_RMCHAR, (ISRCommand) isr80h_command3_rmchar);
     isr80h_register_command(ISR80H_COMMAND4_MALLOC, isr80h_command4_malloc);
     isr80h_register_command(ISR80H_COMMAND5_FREE, isr80h_command5_free);
+    isr80h_register_command(ISR80H_COMMAND6_CLEAR, (ISRCommand) isr80h_command6_clear);
 }

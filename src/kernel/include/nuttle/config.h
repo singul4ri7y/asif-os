@@ -106,4 +106,9 @@
 
 #define NUTTLE_USER_HEAP_VIRT_ADDR           0xffe000
 
+// The maximum number of NOBITS type sections allocation in the
+// memory.
+
+#define NUTTLE_MAX_NOBITS_ALLOC              16
+
 #endif    // __NUTTLE_CONFIG_H__

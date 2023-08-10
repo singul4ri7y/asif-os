@@ -1,27 +1,14 @@
-#include <asifos.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <asifos.h>
 
 int main() {
-    char* ptr = malloc(512);
+    char str[50];
 
-    ptr[0] = 'A';
-    ptr[1] = 'B';
-    ptr[2] = 'C';
-    ptr[3] = '\n';
-    ptr[4] = 0;
+    asifos_terminal_readline(str, 49, 1);
 
-    asifos_print(ptr);
-
-    free(ptr);
-
-    asifos_print("Start typing: ");
-
-    while(1) {
-        char ch = asifos_getkey();
-
-        if(ch != 0) 
-            asifos_putchar(ch);
-    }
+    printf(str);
 
     return 0;
 }

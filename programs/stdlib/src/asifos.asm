@@ -26,8 +26,12 @@ asifos_getkey:
     push ebp
     mov ebp, esp
 
+.loop: 
     mov eax, 1
     int 0x80
+
+    or eax, 0
+    jz .loop
 
     pop ebp
     ret
@@ -45,6 +49,20 @@ asifos_putchar:
     int 0x80
 
     pop esi
+    pop eax
+    pop ebp
+    ret
+
+global asifos_rmchar:function
+
+asifos_rmchar: 
+    push ebp
+    push eax
+    mov ebp, esp
+
+    mov eax, 3
+    int 0x80
+
     pop eax
     pop ebp
     ret
@@ -80,5 +98,19 @@ asifos_free:
 
     pop eax
     pop esi
+    pop ebp
+    ret
+
+global asifos_clear:function
+
+asifos_clear: 
+    push ebp
+    push eax
+    mov ebp, esp
+
+    mov eax, 6
+    int 0x80
+
+    pop eax
     pop ebp
     ret

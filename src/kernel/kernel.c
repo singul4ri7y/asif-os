@@ -67,7 +67,7 @@ void kernel_main() {
     kernel_print_ok("Teletype text mode enabled, now ready to print text");
 
     putsk("\nBooting ");
-    putsck("AsifOS v0.1.0 (alpha)\n\n", TTY_LIGHT_BLUE);
+    putsck("AsifOS v0.1.1 (negative alpha)\n\n", TTY_LIGHT_BLUE);
 
     // Initialize the GDT.
 
@@ -148,19 +148,19 @@ void kernel_main() {
     kernel_print_ok("Keyboards initialized, now ready to take input");
 
 
-    putsk("\n\n");
+    putsk("\n");
+
+    kernel_print_ok("Loading shell...\n");
 
     // Create a process.
 
     NuttleProcess* process;
 
-    if(ISERR(process_load_and_switch("0:/BLANK.ELF", &process))) {
-        kernel_panic("Could not load program BLANK.ELF\n");
+    if(ISERR(process_load_and_switch("0:/SHELL.ELF", &process))) {
+        kernel_panic("Could not load init program, SHELL.ELF! Aborting...\n");
     }
 
     task_run();
 
     process_free(process);
-
-    putsk("AsifOS rocks!\n");
 }

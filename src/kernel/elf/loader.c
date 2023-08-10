@@ -65,7 +65,22 @@ static int elf_loader_process_pheader(NuttleELFFile* elf_file) {
 
         switch(pheader -> p_type) {
             case PT_LOAD: {
-                pheader -> p_paddr = (ELF32Addr) elf_file -> elf_mem + pheader -> p_offset;
+                // If the filesize of the segment is zero, the offset of that segment is likely
+                // to be zero. So allocate new memory to store that segment.
+
+                if(pheader -> p_filesiz == 0) {
+                    pheader -> p_paddr = (ELF32Addr) mallock(pheader -> p_memsiz);
+
+                    if(ISERRP(pheader -> p_paddr)) {
+                        res = -ENOMEM;
+
+                        goto out;
+                    }
+
+                    // Add it to the NOBITS section allocation table.
+
+                    elf_file -> no_bits_allocs[elf_file -> no_bits_num++] = (void*) pheader -> p_paddr;
+                } else pheader -> p_paddr = (ELF32Addr) elf_file -> elf_mem + pheader -> p_offset;
 
                 elf_file -> pheaders[elf_file -> pheader_size++] = pheader;
 
@@ -74,6 +89,7 @@ static int elf_loader_process_pheader(NuttleELFFile* elf_file) {
         }
     }
 
+out: 
     return res;
 }
 
@@ -150,6 +166,11 @@ void elf_free(NuttleELFFile* elf_file) {
     
     if(elf_file -> pheaders) 
         freek(elf_file -> pheaders);
+    
+    // Free all the NOBITS section allocation.
+
+    for(int i = 0; i < elf_file -> no_bits_num; i++) 
+        freek(elf_file -> no_bits_allocs[i]);
     
     freek(elf_file);
 }

@@ -21,6 +21,15 @@ typedef struct __struct_NuttleELFFile {
 
     int pheader_size;
 
+    // Allocated memories to load 'NOBITS' sections/segments. These type of sections
+    // does not have any size in the ELF file.
+
+    void* no_bits_allocs[NUTTLE_MAX_NOBITS_ALLOC];
+
+    // Number of NOBITS section allocation in the memory.
+
+    int no_bits_num; 
+
     // All the program headers.
 
     NuttleELF32ProgramHeader** pheaders;
