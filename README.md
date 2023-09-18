@@ -8,4 +8,4 @@ AsifOS is a hobby project of mine, which was intended for learning purposes of h
 
 ![Demostration 2](demo/display-2.png)
 
-<b>This project is only for educational purposes, not meant for production. But I am preparing to write a production ready kernel in near future. To follow, go to [AsifOS](https://github.com/AsifOS).</b>
+<b>This project is only for educational purposes, not meant for production use. But I am preparing to write a production ready kernel in near future. To follow, go to [AsifOS](https://github.com/AsifOS).</b>
