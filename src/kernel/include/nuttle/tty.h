@@ -23,5 +23,8 @@ void tty_putc(char ch, TTYColor);
 void tty_clean();
 void tty_rmc();
 void tty_reset();
+void tty_enable_cursor(uint8_t cursor_start, uint8_t cursor_end);
+void tty_disable_cursor();
+void tty_update_cursor(uint16_t pos);
 
 #endif    // __NUTTLE_TTY_H__

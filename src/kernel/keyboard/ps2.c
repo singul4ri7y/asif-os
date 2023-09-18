@@ -9,28 +9,47 @@
 static int ps2_init();
 static void ps2_keyboard_interrupt_handler();
 
-// Keyboard scan set. I am using the scan set one.
+// Keyboard scan set. I am using the QUERTY US scanset.
 
 uint8_t keyboard_scan_set[] = {
-    0x00, 0x1B, '1', '2', '3', '4', '5',
+    0x00, 0x1b, '1', '2', '3', '4', '5',
     '6', '7', '8', '9', '0', '-', '=',
+    0x08, '\t', 'q', 'w', 'e', 'r', 't',
+    'y', 'u', 'i', 'o', 'p', '[', ']',
+    0x0d, 0x11, 'a', 's', 'd', 'f', 'g',
+    'h', 'j', 'k', 'l', ';', '\'', '`', 
+    0x10, '\\', 'z', 'x', 'c', 'v', 'b',
+    'n', 'm', ',', '.', '/', 0x10, '*',
+    0x12, ' ', 0x14, 0x70, 0x71, 0x72,
+    0x73, 0x74, 0x75, 0x76, 0x77, 0x78,
+    0x79, '7', '8', '9', '-', '4', '5',
+    '6', '+', '1', '2', '3', '0', '.',
+    0x7a, 0x7b
+};
+
+uint8_t keyboard_scan_set_sh[] = {
+    0x00, 0x1b, '!', '@', '#', '$', '%',
+    '^', '&', '*', '(', ')', '_', '+',
     0x08, '\t', 'Q', 'W', 'E', 'R', 'T',
-    'Y', 'U', 'I', 'O', 'P', '[', ']',
-    0x0d, 0x00, 'A', 'S', 'D', 'F', 'G',
-    'H', 'J', 'K', 'L', ';', '\'', '`', 
-    0x00, '\\', 'Z', 'X', 'C', 'V', 'B',
-    'N', 'M', ',', '.', '/', 0x00, '*',
-    0x00, 0x20, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, '7', '8', '9', '-', '4', '5',
-    '6', '+', '1', '2', '3', '0', '.'
+    'Y', 'U', 'I', 'O', 'P', '{', '}',
+    0x0d, 0x11, 'A', 'S', 'D', 'F', 'G',
+    'H', 'J', 'K', 'L', ':', '"', '~', 
+    0x10, '|', 'Z', 'X', 'C', 'V', 'B',
+    'N', 'M', '<', '>', '?', 0x10, '*',
+    0x12, ' ', 0x14, 0x70, 0x71, 0x72,
+    0x73, 0x74, 0x75, 0x76, 0x77, 0x78,
+    0x79, 0x00, 0x00, 0x00, '-', 0x00,
+    0x00, 0x00, '+', 0x00, 0x00, 0x00, 
+    0x00, '.', 0x7a, 0x7b
 };
 
 int scan_code_size = 0;
 
 static NuttleKeyboard classic_ps2 = {
-    .name = "Classic PS/2 Keyboard",
-    .init = ps2_init
+    .name     = "Classic PS/2 Keyboard",
+    .init     = ps2_init,
+    .cl_state = CAPSLOCK_STATE_OFF,
+    .sh_state = SHIFT_RELEASED
 };
 
 NuttleKeyboard* ps2_get_keyboard() {
@@ -154,7 +173,7 @@ static int ps2_init() {
 
     if(ISERR(res = ps2_wait_for_ack(PS2_KEYBOARD_DISABLE_SCANNING))) 
         goto out;
-    
+
     // Now send the identify (0xf2) command to the device.
 
     outb(PS2_DATA_PORT, PS2_DEVICE_IDENTIFY);
@@ -197,11 +216,13 @@ out:
     return res;
 }
 
-static char ps2_keyboard_scancode_to_char(int scancode) {
+static uint8_t ps2_keyboard_scancode_to_char(int scancode) {
     if(scancode >= scan_code_size) 
-        return '\0';
+        return 0;
     
-    return keyboard_scan_set[scancode];
+    uint8_t res = classic_ps2.sh_state ? keyboard_scan_set_sh[scancode] : keyboard_scan_set[scancode];
+    
+    return res;
 }
 
 static void ps2_keyboard_interrupt_handler() {
@@ -211,16 +232,21 @@ static void ps2_keyboard_interrupt_handler() {
 
     uint8_t scancode = inb(PS2_DATA_PORT);
 
-    while(inb(PS2_STATUS_PORT) & 0x1) 
-        inb(PS2_DATA_PORT);
-    
-    // Check if it was a release key event. This OS doesn't yet support key press or release
-    // event, it just supports input of raw characters.
+    // Read all the scancodes sent afterwards, this OS does not handle them, for now.
 
-    if(scancode & PS2_KEYBOARD_SCANCODE_RELEASE) 
-        return;
+    uint8_t code = inb(PS2_DATA_PORT);
+
+    code += 0;
     
-    char ch = ps2_keyboard_scancode_to_char(scancode);
+    // The keyboard buffer consists of 2 bytes. The first byte indicates the character associated
+    // with the keyboard event. The second byte indicates details related to that event, like whether
+    // the key was pressed or released. LSB order.
+
+    uint16_t event = (scancode & PS2_KEYBOARD_SCANCODE_RELEASE) == PS2_KEYBOARD_SCANCODE_RELEASE;
+
+    uint8_t ch = ps2_keyboard_scancode_to_char(scancode);
+
+    event = (event << 8) | ch;
 
     if(ch != 0) 
         keyboard_push(ch);

@@ -15,6 +15,7 @@
 #define PS2_KEYBOARD_ACK               0xfa
 #define PS2_KEYBOARD_RESEND            0xfe
 #define PS2_KEYBOARD_RESET             0xff
+#define PS2_KEYBOARD_SCANCODE_SET      0xf0
 #define PS2_KEYBOARD_SELF_TEST_SUCC    0xaa
 #define PS2_KEYBOARD_IRQ               0x21
 #define PS2_KEYBOARD_SCANCODE_RELEASE  0x80    // PS/2 keyboard sends scan codes, which indicates press event or release event of a key.

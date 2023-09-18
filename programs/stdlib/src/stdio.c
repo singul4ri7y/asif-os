@@ -74,7 +74,13 @@ int putchar(int ch) {
 }
 
 int getchar() {
-    return asifos_getkey();
+    int ev;
+
+    // do {
+        ev = asifos_getkey();
+    // } while(ev >> 8);
+
+    return ev;
 }
 
 char* gets(char* buf, int max) {

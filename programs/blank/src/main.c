@@ -4,11 +4,11 @@
 #include <asifos.h>
 
 int main() {
-    char str[50];
+    while(1) {
+        char ch = getchar();
 
-    asifos_terminal_readline(str, 49, 1);
-
-    printf(str);
+        putchar(ch);
+    }
 
     return 0;
 }

@@ -57,12 +57,13 @@ static int keyboard_get_circular(int n) {
 }
 
 // AsifOS only supports ASCII character set for now.
-// Pushes the character gotten from keyboard to current process.
+// Pushes the character and keybord event type in another byte to the keyboard 
+// buffer.
 
-int keyboard_push(char ch) {
+int keyboard_push(uint16_t event) {
     int res = NUTTLE_ALL_OK;
 
-    if(ch == 0x00) {
+    if(event == 0x00) {
         res = -EINVARG;
 
         goto out;
@@ -82,7 +83,7 @@ int keyboard_push(char ch) {
 
     // Now fill the current slot pointed by tail.
 
-    kbd_buf -> buffer[kbd_buf -> tail] = ch;
+    kbd_buf -> buffer[kbd_buf -> tail] = event;
 
     // Now update the tail.
 
@@ -119,8 +120,8 @@ out:
 
 // Pops the keyboard character from the process of the current running task.
 
-char keyboard_pop() {
-    char ch = '\0';
+uint16_t keyboard_pop() {
+    uint16_t event = 0;
 
     NuttleKeyboardBuffer* kbd_buf = &task_get_current() -> process -> buffer;
 
@@ -131,7 +132,7 @@ char keyboard_pop() {
     
     // Return the character we have in head.
 
-    ch = kbd_buf -> buffer[kbd_buf -> head];
+    event = kbd_buf -> buffer[kbd_buf -> head];
 
     // Update the head.
 
@@ -142,5 +143,5 @@ char keyboard_pop() {
     kbd_buf -> size--;
 
 out: 
-    return ch;
+    return event;
 }

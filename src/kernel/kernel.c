@@ -152,6 +152,11 @@ void kernel_main() {
 
     kernel_print_ok("Loading shell...\n");
 
+    // Enable the cursor.
+
+    tty_enable_cursor(0, 15);
+    tty_update_cursor(0);
+
     // Create a process.
 
     NuttleProcess* process;

@@ -4,16 +4,28 @@ void asifos_terminal_readline(char* buf, int max, int output_while_typing) {
     int i = 0;
 
     for(; i < max - 1; i++) {
-        int ch = asifos_getkey();
+        int ev = asifos_getkey();
+
+        // We don't care about the release event.
+
+        if((ev >> 8) > 0) {
+            i--;
+
+            continue;
+        }
+
+        // Now just process the character.
+
+        ev &= 0xff;
 
         // If the key is a carriage return, then stop filling out the buffer.
 
-        if(ch == 13) 
+        if(ev == 13) 
             break;
         
         // Handling Backspace.
 
-        if(ch == 8) {
+        if(ev == 8) {
             if(i > 0) {
                 // It will be +1 when we continue.
 
@@ -25,10 +37,10 @@ void asifos_terminal_readline(char* buf, int max, int output_while_typing) {
             continue;
         }
 
-        buf[i] = (char) ch;
+        buf[i] = (char) ev;
 
         if(output_while_typing) 
-            asifos_putchar(ch);
+            asifos_putchar(ev);
     }
 
     buf[i] = '\0';

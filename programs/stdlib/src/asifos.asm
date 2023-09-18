@@ -30,6 +30,7 @@ asifos_getkey:
     mov eax, 1
     int 0x80
 
+    and eax, 0xff    ; The EAX register holds a word, where the first byte is the character (LSB).
     or eax, 0
     jz .loop
 
