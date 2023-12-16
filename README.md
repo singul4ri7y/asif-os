@@ -1,11 +1,40 @@
-# AsifOS
+<h1 align="center">AsifOS (educational)</h1>
+<p>AsifOS (educational) is a fully-functioning Operating System from scratch for learning purposes.</p>
 
-AsifOS is a hobby project of mine, which was intended for learning purposes of how operating systems work. I always wondered what the heck happens under the hood when we use our computers. And I think I am blessed to learn those wonders of low level computing. This OS currently supports i386 architecture (x86_64 can handle the code, but not sure), and only supports BIOS boot for now.
+## Why this project
+The wonders of Operating Systems, specially how they are implemented always fascinated me. I always thought how a software actually communicates with the hardware, what happens when we press a key in keyboard and how a process can read it. I think I am blessed to learn those wonders of Low-Level computing.
 
-## Photo demostration: 
+## Features of AsifOS (educational)
+1. Bootloader implemented in Intel Real Mode (i8086 16-bit), which will be a raw bootable machine code.
+2. Small part of bootloader loading the kernel and the entire kernel implementation in Intel Protected Mode (i80386 32-bit).
+3. The kernel is written in C entirely, the best programming language ever created.
+4. Memory Management using Paging and Heap.
+5. Virtual File Systems.
+6. FAT12 file system implementation.
+7. Hardware level interrupts using Intel's 8259A PIC.
+8. Implementation of Disk Drivers.
+9. PS/2 Keyboard driver.
+10. Implementation of Processes and Threads/Tasks.
+11. Multiprogramming scheduling implementation using Round-Robin algorithm.
+12. Implementation of loading processes from raw binary and 32-bit ELF file format, used by famous OS's like Linux.
+13. Kernel and user space protections.
+14. Kernel Commands with interrupt driven System Calls.
+15. A user space shell program to interact with the Operating System.
+16. Other miscellaneous implementations like TTY and other microarchitecture related stuff.
+
+**Note:** AsifOS only supports i386 architecture and BIOS boot for now.
+## How to build
+### Prerequisite installations: 
+**Linux:** Install the `i386-elf-toolchain` and `nasm` according to the distro you are using (Good luck with Ubuntu). We need `qemu` for testing as well.
+**MacOS:** Try [nativeos/homeberw-i386-elf-toolchain](https://github.com/nativeos/homebrew-i386-elf-toolchain), install `nasm` and `qemu` with regular homebrew formulae. Haven't tested in Macintosh.
+**Windows:** May God have mercy on your soul.
+### Build and run:
+Just invoke `run.sh`. It will then invoke `make` to build the entire project generating `os.img` and then run it with `qemu-system-i386`.
+
+## Demonstrations
 
 ![Demostration 1](demo/display-1.png)
 
 ![Demostration 2](demo/display-2.png)
 
-<b>This project is only for educational purposes, not meant for production use. But I am preparing to write a production ready kernel in near future. To follow, go to [AsifOS](https://github.com/AsifOS).</b>
+<b>This project is not production ready, I did this project for educational purposes only. Check out [AsifOS (production)](https://github.com/AsifOS), which I am currently working on.</b>
