@@ -38,3 +38,5 @@ Just invoke `run.sh`. It will then invoke `make` to build the entire project gen
 ![Demostration 2](demo/display-2.png)
 
 <b>This project is not production ready, I did this project for educational purposes only. Check out [AsifOS (production)](https://github.com/AsifOS), which I am currently working on.</b>
+
+<b><i>Peace.</i></b>
