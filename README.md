@@ -26,7 +26,9 @@ The wonders of Operating Systems, specially how they are implemented always fasc
 ## How to build
 ### Prerequisite installations: 
 **Linux:** Install the `i386-elf-toolchain` and `nasm` according to the distro you are using (Good luck with Ubuntu). We need `qemu` for testing as well.
+
 **MacOS:** Try [nativeos/homeberw-i386-elf-toolchain](https://github.com/nativeos/homebrew-i386-elf-toolchain), install `nasm` and `qemu` with regular homebrew formulae. Haven't tested in Macintosh.
+
 **Windows:** May God have mercy on your soul.
 ### Build and run:
 Just invoke `run.sh`. It will then invoke `make` to build the entire project generating `os.img` and then run it with `qemu-system-i386`.
