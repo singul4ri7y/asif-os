@@ -10,7 +10,7 @@ The wonders of Operating Systems, specially how they are implemented always fasc
 3. The kernel is written in C entirely, the best programming language ever created.
 4. Memory Management using Paging and Heap.
 5. Virtual File Systems.
-6. FAT12 file system implementation.
+6. FAT16 file system implementation.
 7. Hardware level interrupts using Intel's 8259A PIC.
 8. Implementation of Disk Drivers.
 9. PS/2 Keyboard driver.
