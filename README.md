@@ -27,7 +27,7 @@ The wonders of Operating Systems, specially how they are implemented always fasc
 ### Prerequisite installations: 
 **Linux:** Install the `i386-elf-toolchain` and `nasm` according to the distro you are using (Good luck with Ubuntu). We need `qemu` for testing as well.
 
-**MacOS:** Try [nativeos/homeberw-i386-elf-toolchain](https://github.com/nativeos/homebrew-i386-elf-toolchain), install `nasm` and `qemu` with regular homebrew formulae. Haven't tested in Macintosh.
+**MacOS:** Try [nativeos/homebrew-i386-elf-toolchain](https://github.com/nativeos/homebrew-i386-elf-toolchain), install `nasm` and `qemu` with regular homebrew formulae. Haven't tested in Macintosh.
 
 **Windows:** May God have mercy on your soul.
 ### Build and run:
