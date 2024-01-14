@@ -15,7 +15,7 @@ The wonders of Operating Systems, specially how they are implemented always fasc
 8. Implementation of Disk Drivers.
 9. PS/2 Keyboard driver.
 10. Implementation of Processes and Threads/Tasks.
-11. Multiprogramming scheduling implementation using Round-Robin algorithm.
+11. Preemptive multi-tasking using Round-Robin schedular algorithm.
 12. Implementation of loading processes from raw binary and 32-bit ELF file format, used by famous OS's like Linux.
 13. Kernel and user space protections.
 14. Kernel Commands with interrupt driven System Calls.
