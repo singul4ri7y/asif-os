@@ -2,7 +2,7 @@
 <p>AsifOS (educational) is a fully-functioning Operating System from scratch for learning purposes.</p>
 
 ## Why this project
-The wonders of Operating Systems, especially how they are implemented, always fascinated me. I thought about how asoftware can actually communicate with the hardware, what happens when we press a key in the keyboard and how a process can read it. With this project I am blessed with the knowledge and wonders of Low-Level comoputing.
+The wonders of Operating Systems, especially how they are implemented, always fascinated me. I thought about how a software can actually communicate with the hardware, what happens when we press a key in the keyboard and how a process can read it. With this project I am blessed with the knowledge and wonders of Low-Level comoputing.
 
 ## Features of AsifOS (educational)
 1. Bootloader implemented in Intel Real Mode (i8086 16-bit), which will be a raw bootable machine code.
